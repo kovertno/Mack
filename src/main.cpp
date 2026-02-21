@@ -10,6 +10,8 @@
 #include <iostream>
 #include <random>
 
+void processInput(GLFWwindow* window);
+
 int main() {
 
     const unsigned int SCR_WIDTH = 1200;
@@ -44,6 +46,7 @@ int main() {
 
     while (!glfwWindowShouldClose(window)) {
         // clear buffers
+		processInput(window);
         glClearColor(0.0f, 0.5f, 0.5f, 1.0f);
         glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -56,4 +59,10 @@ int main() {
     glfwTerminate();
     return 0;
     return 0;
+}
+
+void processInput(GLFWwindow* window)
+{
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, true);
 }
