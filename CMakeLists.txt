@@ -16,7 +16,7 @@ find_package(glfw3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 
 # Define the executable and its source files
-add_executable(Mack ${SOURCES} "components/RendererComponent.h" "systems/RenderSystem.cpp" "systems/RenderSystem.h" "headers/Renderer.h")
+add_executable(Mack ${SOURCES} "components/RendererComponent.h" "systems/RenderSystem.cpp" "systems/RenderSystem.h" "headers/Renderer.h" "systems/PhysicsSystem.cpp")
 
 # Include directories
 target_include_directories(Mack PRIVATE "src" "headers" "GLAD/include" "components" "systems")
