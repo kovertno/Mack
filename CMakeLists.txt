@@ -16,10 +16,10 @@ find_package(glfw3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 
 # Define the executable and its source files
-add_executable(Mack ${SOURCES})
+add_executable(Mack ${SOURCES} "components/RendererComponent.h" "systems/RenderSystem.cpp" "systems/RenderSystem.h" "headers/Renderer.h")
 
 # Include directories
-target_include_directories(Mack PRIVATE "src" "headers" "GLAD/include")
+target_include_directories(Mack PRIVATE "src" "headers" "GLAD/include" "components" "systems")
 
 # Use C++17
 if (CMAKE_VERSION VERSION_GREATER 3.12)
