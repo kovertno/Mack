@@ -8,6 +8,7 @@
 
 #include "TransformComponent.hpp"
 #include "BoxMeshComponent.hpp"
+#include "CrosshairMeshComponent.hpp"
 
 #include "RenderSystem.h"
 
@@ -28,6 +29,7 @@ private:
 	GLFWwindow* window = nullptr;
 	std::unique_ptr<Camera> camera = nullptr;
 	std::unique_ptr<Shader> cubeShader = nullptr;
+	std::unique_ptr<Shader> crosshairShader = nullptr;
 	// delta Time
 	float deltaTime = 0.0f;
 	float lastFrame = 0.0f;
@@ -39,6 +41,9 @@ private:
 
 	unsigned int cubeVAO;
 	unsigned int cubeVBO;
+
+	unsigned int crosshairVAO;
+	unsigned int crosshairVBO;
 public:
 	entt::registry registry;
 
@@ -49,6 +54,10 @@ public:
 	~Game() {
 		glDeleteVertexArrays(1, &cubeVAO);
 		glDeleteBuffers(1, &cubeVBO);
+
+		glDeleteVertexArrays(1, &crosshairVAO);
+		glDeleteBuffers(1, &crosshairVBO);
+
 		glfwTerminate();
 	}
 

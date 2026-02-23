@@ -19,6 +19,7 @@
 
 #include "TransformComponent.hpp"
 #include "BoxMeshComponent.hpp"
+#include "CrosshairMeshComponent.hpp"
 
 #include "RenderSystem.h"
 

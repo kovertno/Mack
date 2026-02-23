@@ -5,13 +5,14 @@
 #include "RenderSystem.h"
 #include "TransformComponent.hpp"
 #include "BoxMeshComponent.hpp"
+#include "CrosshairMeshComponent.hpp"
 
 #include <entt/entt.hpp>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-void RenderSystem::SetBoxStaticUniforms(Shader* shader, std::unique_ptr<Camera>& camera) {
+void RenderSystem::SetBoxStaticUniforms(Shader* shader) {
     shader->Use();
 
     glm::mat4 projection = glm::mat4(1.0f);
@@ -51,4 +52,27 @@ void RenderSystem::RenderBoxes(entt::registry& registry, Shader* shader) {
 
         glDrawArrays(GL_TRIANGLES, 0, mesh.numOfVertices);
     }
+}
+
+void RenderSystem::SetCrosshairStaticUniforms(Shader* shader) {
+    shader->Use();
+
+    glm::mat4 projection = glm::ortho(0.0f, (float)Game::SCR_WIDTH, 0.0f, (float)Game::SCR_HEIGHT, -1.0f, 1.0f);
+    shader->SetMat4("projection", projection);
+
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3((float)Game::SCR_WIDTH/2.0f, (float)Game::SCR_HEIGHT/2.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(5.0f));
+    shader->SetMat4("model", model);
+}
+
+void RenderSystem::RenderCrosshair(entt::registry& registry, Shader* shader) {
+    shader->Use();
+
+    auto view = registry.view<CrosshairMeshComponent>();
+    auto entity = view.front();
+    auto& mesh = view.get<CrosshairMeshComponent>(entity);
+
+    glBindVertexArray(mesh.VAO);
+    glDrawArrays(GL_TRIANGLES, 0, mesh.numOfVertices);
 }

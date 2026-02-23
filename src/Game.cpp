@@ -5,6 +5,7 @@
 
 #include "TransformComponent.hpp"
 #include "BoxMeshComponent.hpp"
+#include "CrosshairMeshComponent.hpp"
 
 #include "RenderSystem.h"
 
@@ -27,25 +28,31 @@ void Game::Init() {
     
     camera = std::make_unique<Camera>();
     cubeShader = std::make_unique<Shader>("resources/shaders/cubeShader.vs", "resources/shaders/cubeShader.fs");
+    crosshairShader = std::make_unique<Shader>("resources/shaders/crosshairShader.vs", "resources/shaders/crosshairShader.fs");
 
-    RenderSystem::SetBoxStaticUniforms(cubeShader.get(), camera);
+    RenderSystem::SetBoxStaticUniforms(cubeShader.get());
+    RenderSystem::SetCrosshairStaticUniforms(crosshairShader.get());
 
-    BoxMeshComponent::SetVAO(cubeVAO, cubeVBO);
+    BoxMeshComponent::SetBoxVAO(cubeVAO, cubeVBO);
+    CrosshairMeshComponent::SetCrosshairVAO(crosshairVAO, crosshairVAO);
 
-    auto cube = registry.create();
-    auto& transform = registry.emplace<TransformComponent>(cube);
+    entt::entity cubeEntity = registry.create();
+    auto& transform = registry.emplace<TransformComponent>(cubeEntity);
     transform.position = glm::vec3{ 0.0f, 0.0f, -2.0f };
+    auto& boxMesh = registry.emplace<BoxMeshComponent>(cubeEntity);
+    boxMesh.VAO = cubeVAO;
+    boxMesh.numOfVertices = 36;
 
-    auto& mesh = registry.emplace<BoxMeshComponent>(cube);
-    mesh.VAO = cubeVAO;
-    mesh.numOfVertices = 36;
+    entt::entity crosshairEntity = registry.create();
+    auto& crosshairMesh = registry.emplace<CrosshairMeshComponent>(crosshairEntity);
+    crosshairMesh.VAO = crosshairVAO;
+    crosshairMesh.numOfVertices = 6;
 }
 
 void Game::Run() {
       while (!glfwWindowShouldClose(window)) {
           // clear buffers
           glClearColor(0.0f, 0.5f, 0.5f, 1.0f);
-          glEnable(GL_DEPTH_TEST);
           glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
           ProcessInput();
@@ -79,7 +86,14 @@ void Game::Update() {
 
 void Game::Render() {
     RenderSystem::SetBoxDynamicUniforms(cubeShader.get(), camera);
+
+    // enable depth testing for 3d world
+    glEnable(GL_DEPTH_TEST);
     RenderSystem::RenderBoxes(registry, cubeShader.get());
+
+    // disable depth testing for 2d elements
+    glDisable(GL_DEPTH_TEST);
+    RenderSystem::RenderCrosshair(registry, crosshairShader.get());
 }
 
 void Game::SetCallbacks() {

@@ -1,11 +1,14 @@
 #ifndef BOX_MESH_COMPONENT_H
 #define BOX_MESH_COMPONENT_H
 
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 struct BoxMeshComponent {
 	unsigned int numOfVertices;
     unsigned int VAO;
 
-	static void SetVAO(unsigned int& VAO, unsigned int& VBO) {
+	static void SetBoxVAO(unsigned int& VAO, unsigned int& VBO) {
         float vertices[]{
             // positions          // normals           // texture coords
             -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
