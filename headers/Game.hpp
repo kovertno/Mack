@@ -27,7 +27,7 @@ class Game {
 private:
 	GLFWwindow* window = nullptr;
 	std::unique_ptr<Camera> camera = nullptr;
-	std::unique_ptr<Shader> testShader = nullptr;
+	std::unique_ptr<Shader> cubeShader = nullptr;
 	// delta Time
 	float deltaTime = 0.0f;
 	float lastFrame = 0.0f;
@@ -36,6 +36,9 @@ private:
 	inline static float lastY = 400;
 	// is it the first time loading the mouse position
 	inline static bool isFirstMouse = true;
+
+	unsigned int cubeVAO;
+	unsigned int cubeVBO;
 public:
 	entt::registry registry;
 
@@ -43,7 +46,11 @@ public:
 	static constexpr unsigned int SCR_HEIGHT = 800;
 
 	Game() = default;
-	~Game() = default;
+	~Game() {
+		glDeleteVertexArrays(1, &cubeVAO);
+		glDeleteBuffers(1, &cubeVBO);
+		glfwTerminate();
+	}
 
 	void Init();
 	void Run();

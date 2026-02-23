@@ -19,8 +19,10 @@ private:
 public:
 	RenderSystem() = default;
 	~RenderSystem() = default;
-
-	static void Render(entt::registry& registry, Shader* shader, std::unique_ptr<Camera>& camera);
+	
+	static void SetBoxStaticUniforms(Shader* shader, std::unique_ptr<Camera>& camera);
+	static void SetBoxDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera);
+	static void RenderBoxes(entt::registry& registry, Shader* shader);
 };
 
 #endif

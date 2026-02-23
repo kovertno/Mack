@@ -2,9 +2,10 @@
 #define BOX_MESH_COMPONENT_H
 
 struct BoxMeshComponent {
-	unsigned int numOfVertices = 36;
+	unsigned int numOfVertices;
+    unsigned int VAO;
 
-	unsigned int GetVAO() {
+	static void SetVAO(unsigned int& VAO, unsigned int& VBO) {
         float vertices[]{
             // positions          // normals           // texture coords
             -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
@@ -50,8 +51,6 @@ struct BoxMeshComponent {
             -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
         };
 
-        unsigned int VBO, VAO;
-
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
 
@@ -63,7 +62,8 @@ struct BoxMeshComponent {
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
 
-		return VAO;
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
 	}
 };
 

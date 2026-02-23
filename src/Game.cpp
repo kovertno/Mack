@@ -19,7 +19,6 @@
 
 #include <iostream>
 
-
 void Game::Init() {
     Window _window{SCR_WIDTH, SCR_HEIGHT};
 	window = _window.InitWindow();
@@ -27,13 +26,19 @@ void Game::Init() {
     SetCallbacks();
     
     camera = std::make_unique<Camera>();
-    testShader = std::make_unique<Shader>("resources/shaders/testShader.vs", "resources/shaders/testShader.fs");
+    cubeShader = std::make_unique<Shader>("resources/shaders/cubeShader.vs", "resources/shaders/cubeShader.fs");
 
+    RenderSystem::SetBoxStaticUniforms(cubeShader.get(), camera);
+
+    BoxMeshComponent::SetVAO(cubeVAO, cubeVBO);
 
     auto cube = registry.create();
     auto& transform = registry.emplace<TransformComponent>(cube);
+    transform.position = glm::vec3{ 0.0f, 0.0f, -2.0f };
+
     auto& mesh = registry.emplace<BoxMeshComponent>(cube);
-    transform.position = glm::vec3{0.0f, 0.0f, -2.0f};
+    mesh.VAO = cubeVAO;
+    mesh.numOfVertices = 36;
 }
 
 void Game::Run() {
@@ -50,8 +55,6 @@ void Game::Run() {
           glfwSwapBuffers(window);
           glfwPollEvents();
       }
-      glfwTerminate();
-      return;
 }
 
 void Game::ProcessInput() {
@@ -68,15 +71,17 @@ void Game::ProcessInput() {
         camera->KeyboardMovement(RIGHT, deltaTime);
 }
 
-void Game::Update() { 
+void Game::Update() {
     float currentFrame = (float)glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 }
 
 void Game::Render() {
-    RenderSystem::Render(registry, testShader.get(), camera);
+    RenderSystem::SetBoxDynamicUniforms(cubeShader.get(), camera);
+    RenderSystem::RenderBoxes(registry, cubeShader.get());
 }
+
 void Game::SetCallbacks() {
     // we set pointer for the window to this class instance
     glfwSetWindowUserPointer(window, this);
