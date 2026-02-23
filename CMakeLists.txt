@@ -9,14 +9,21 @@ endif()
 project("Mack")
 
 # Grab all source files automatically
-file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.c")
+file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.c" "systems/*.cpp")
 
 # Find libraries installed via vcpkg
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 
 # Define the executable and its source files
-add_executable(Mack ${SOURCES} "components/RendererComponent.h" "systems/RenderSystem.cpp" "systems/RenderSystem.h" "headers/Renderer.h")
+add_executable(Mack ${SOURCES})
+
+# Copy resources to build directory
+add_custom_command(TARGET Mack POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/resources
+    $<TARGET_FILE_DIR:Mack>/resources
+)
 
 # Include directories
 target_include_directories(Mack PRIVATE "src" "headers" "GLAD/include" "components" "systems")
