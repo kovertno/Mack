@@ -4,13 +4,13 @@
 #include "Camera.hpp"
 #include <EntityManager.hpp>
 
-#include "TransformComponent.hpp"
-#include "BoxMeshComponent.hpp"
-#include "CrosshairMeshComponent.hpp"
-#include "MaterialComponent.hpp"
-#include "GrassMeshComponent.hpp"
+
 
 #include "RenderSystem.h"
+#include "PhysicsSystem.h"
+#include "CollisionSystem.hpp"
+#include "RayCastSystem.hpp"
+#include "KnockBackSystem.hpp"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -83,12 +83,29 @@ void Game::ProcessInput() {
         camera->KeyboardMovement(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera->KeyboardMovement(RIGHT, deltaTime);
+
+    static bool mouseWasReleased = true;
+    bool mousePressed = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
+
+    if (mousePressed && mouseWasReleased) {
+        mouseWasReleased = false;
+        entt::entity hit = RayCastSystem::RayCast(registry, camera->Position, camera->Front, 50.0f);
+
+        if (hit != entt::null) {
+            auto& t = registry.get<TransformComponent>(hit);
+            KnockBackSystem::ApplyKnockBack(registry, hit, camera->Front, 2.0f);
+        }
+    }
+    if (!mousePressed)
+        mouseWasReleased = true;
 }
 
 void Game::Update() {
     float currentFrame = (float)glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
+    PhysicsSystem::update(registry, deltaTime);
+    CollisionSystem::update(registry, deltaTime);
 }
 
 void Game::Render() {

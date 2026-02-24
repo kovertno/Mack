@@ -1,7 +1,8 @@
 #include "RayCastSystem.hpp"
-#include <iostream>
 #include "TransformComponent.hpp"
+#include <iostream>
 #include "BoxColliderComponent.hpp"
+#include "RigidBodyComponent.h"
 #include <entt/entt.hpp>
 
 // Ray vs Axis-Aligned Bounding Box (AABB) intersection test.
@@ -10,41 +11,43 @@
 // If they do, the ray hits the box and outDistance is set to the
 // nearest intersection distance along the ray.
 
-bool RayCastSystem::RayVsBox(const glm::vec3& rayOrigin, const glm::vec3& rayDir, const glm::vec3& boxMin, const glm::vec3& boxMax, float& outDistance){
-    // --- X slab ---
-    float targetXMin = (boxMin.x - rayOrigin.x) / rayDir.x;
-    float targetXMax = (boxMax.x - rayOrigin.x) / rayDir.x;
-    if (targetXMin > targetXMax) std::swap(targetXMin, targetXMax);
+bool RayCastSystem::RayVsBox(const glm::vec3& rayOrigin, const glm::vec3& rayDir, const glm::vec3& boxMin, const glm::vec3& boxMax, float& outDistance) {
+    // Use inverse direction to avoid division by zero and improve performance
+    glm::vec3 invDir;
+    invDir.x = (rayDir.x != 0.0f) ? 1.0f / rayDir.x : std::numeric_limits<float>::max();
+    invDir.y = (rayDir.y != 0.0f) ? 1.0f / rayDir.y : std::numeric_limits<float>::max();
+    invDir.z = (rayDir.z != 0.0f) ? 1.0f / rayDir.z : std::numeric_limits<float>::max();
 
-    // --- Y slab ---
-    float targetYMin = (boxMin.y - rayOrigin.y) / rayDir.y;
-    float targetYMax = (boxMax.y - rayOrigin.y) / rayDir.y;
+    // Compute intersection distances for each axis slab
+    float targetXMin = (boxMin.x - rayOrigin.x) * invDir.x;
+    float targetXMax = (boxMax.x - rayOrigin.x) * invDir.x;
+    if (targetXMin > targetXMax) std::swap(targetXMin, targetXMax); // ensure min < max
+
+    float targetYMin = (boxMin.y - rayOrigin.y) * invDir.y;
+    float targetYMax = (boxMax.y - rayOrigin.y) * invDir.y;
     if (targetYMin > targetYMax) std::swap(targetYMin, targetYMax);
 
-    // Check overlap between X and Y intervals
+    // If intervals don't overlap, ray misses the box
     if ((targetXMin > targetYMax) || (targetYMin > targetXMax))
         return false;
 
-    // Narrow interval to intersection of X and Y
+    // Narrow to the overlap interval
     if (targetYMin > targetXMin) targetXMin = targetYMin;
-    if (targetYMax > targetXMax) targetXMax = targetYMax;
+    if (targetYMax < targetXMax) targetXMax = targetYMax;
 
-    // --- Z slab ---
-    float targetZMin = (boxMin.z - rayOrigin.z) / rayDir.z;
-    float targetZMax = (boxMax.z - rayOrigin.z) / rayDir.z;
+    float targetZMin = (boxMin.z - rayOrigin.z) * invDir.z;
+    float targetZMax = (boxMax.z - rayOrigin.z) * invDir.z;
     if (targetZMin > targetZMax) std::swap(targetZMin, targetZMax);
 
-    // Check overlap with accumulated interval
+    // Final overlap check with Z slab
     if ((targetXMin > targetZMax) || (targetZMin > targetXMax))
         return false;
 
-    // Final entry distance
+    // Entry point is the furthest near intersection
     if (targetZMin > targetXMin) targetXMin = targetZMin;
 
     outDistance = targetXMin;
-
-    // Intersection must be in front of the ray
-    return targetXMin >= 0.0f;
+    return targetXMin >= 0.0f; // negative means box is behind the ray
 }
 
 // returns the entity that was hit
@@ -58,6 +61,11 @@ entt::entity RayCastSystem::RayCast(entt::registry& registry, const glm::vec3& r
         auto& transform = view.get<TransformComponent>(entity);
         auto& collider = view.get<BoxColliderComponent>(entity);
 
+        if (registry.all_of<RigidBodyComponent>(entity)) {
+            auto& ignoreStaticRigidbody = registry.get<RigidBodyComponent>(entity);
+            if (ignoreStaticRigidbody.isStatic) continue;
+        }
+
         glm::vec3 halfSize = transform.scale * collider.halfExtents;
         glm::vec3 boxMin = transform.position - halfSize;
         glm::vec3 boxMax = transform.position + halfSize;
@@ -67,7 +75,11 @@ entt::entity RayCastSystem::RayCast(entt::registry& registry, const glm::vec3& r
             if (hitDistance < closestDistance && hitDistance <= maxDistance) {
                 closestDistance = hitDistance;
                 hitEntity = entity;
-                std::cout << "hit";
+
+                /*std::cout << "hit entity: " << (uint32_t)entity
+                    << " distance: " << hitDistance
+                    << " pos: " << transform.position.x << " " << transform.position.y << " " << transform.position.z
+                    << " halfSize: " << halfSize.x << " " << halfSize.y << " " << halfSize.z << "\n";*/
             }
         }
     }

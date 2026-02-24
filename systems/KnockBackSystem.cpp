@@ -7,7 +7,7 @@ void KnockBackSystem::ApplyKnockBack(entt::registry& registry, entt::entity enti
 	auto& rigidbody = registry.get<RigidBodyComponent>(entity);
 	auto& transform = registry.get<TransformComponent>(entity);
 	rigidbody.velocity += direction * force;
-	rigidbody.velocity.y += 9.0f;
+	rigidbody.velocity.y += 1.0f;
 	//transform.position = rigidbody.velocity;
 
 }

@@ -5,6 +5,10 @@
 #include "CrosshairMeshComponent.hpp"
 #include "MaterialComponent.hpp"
 #include "GrassMeshComponent.hpp"
+#include "BoxColliderComponent.hpp"
+#include "GravityComponent.h"
+#include "KnockBackComponent.hpp"
+#include "RigidBodyComponent.h"
 
 #include <entt/entt.hpp>
 #include <glm/glm.hpp>
@@ -22,9 +26,9 @@ void EntityManager::CreateEnemies(unsigned int VAO, unsigned int numOfEnemies) {
 
     // enemy positions are hardcoded for now, this needs a change later, i think?
     std::vector<glm::vec3> enemyPos{
-        glm::vec3{ 3.0f, 0.25f, -8.0f },
-        glm::vec3{ -6.0f, 0.25f, -10.0f },
-        glm::vec3{ 0.0f, 0.25f, -2.0f }
+        glm::vec3{ 3.0f, 2.0f, -8.0f },
+        glm::vec3{ -6.0f, 2.0f, -10.0f },
+        glm::vec3{ 0.0f, 2.0f, -2.0f }
     };
 
     for (unsigned int i = 0; i < numOfEnemies; i++) {
@@ -37,6 +41,10 @@ void EntityManager::CreateEnemies(unsigned int VAO, unsigned int numOfEnemies) {
         cube1Material.diffuse = glm::vec3(0.7f, 0.0f, 0.0f);
         cube1Material.specular = glm::vec3(1.0f, 1.0f, 1.0f);
         auto& box1Mesh = m_registry.emplace<BoxMeshComponent>(enemyEntity);
+        auto& box1Gravity = m_registry.emplace<GravityComponent>(enemyEntity, glm::vec3(0.0f, -9.0f, 0.0f));
+        auto& box1Rigidbody = m_registry.emplace<RigidBodyComponent>(enemyEntity, glm::vec3(0.0f), glm::vec3(0.0f), false);
+        auto& box1Collider = m_registry.emplace<BoxColliderComponent>(enemyEntity);
+        auto& box1KnockBack = m_registry.emplace<KnockBackComponent>(enemyEntity);
         box1Mesh.VAO = VAO;
         box1Mesh.numOfVertices = 36;
     }
@@ -46,14 +54,16 @@ void EntityManager::CreateFloor(unsigned int VAO) {
     entt::entity floorEntity = m_registry.create();
     auto& floorTransform = m_registry.emplace<TransformComponent>(floorEntity);
     floorTransform.position = glm::vec3(0.0f, -0.6f, 0.0f);
-    floorTransform.rotation = glm::vec3(90.0f, 0.0f, 0.0f);
-    floorTransform.scale = glm::vec3(30.0f, 30.0f, 0.2f);
+    floorTransform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+    floorTransform.scale = glm::vec3(30.0f, 0.2f, 30.0f);
     auto& floorMaterial = m_registry.emplace<MaterialComponent>(floorEntity);
     floorMaterial.ambient = glm::vec3(0.0f, 0.3f, 0.0f);
     floorMaterial.diffuse = glm::vec3(0.0f, 0.7f, 0.0f);
     floorMaterial.specular = glm::vec3(0.6f, 0.6f, 0.6f);
     floorMaterial.shininess = 8.0f;
     auto& floorMesh = m_registry.emplace<BoxMeshComponent>(floorEntity);
+    auto& floorCollider = m_registry.emplace<BoxColliderComponent>(floorEntity);
+    auto& floorRigidbody = m_registry.emplace<RigidBodyComponent>(floorEntity, glm::vec3(0.0f), glm::vec3(0.0f), true);
     floorMesh.VAO = VAO;
     floorMesh.numOfVertices = 36;
 }
