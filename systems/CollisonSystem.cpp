@@ -1,4 +1,5 @@
 #include "CollisionSystem.hpp"
+#include <iostream>
 #include "../components/TransformComponent.hpp"
 #include "../components/RigidBodyComponent.h"
 #include "../components/BoxColliderComponent.hpp"
@@ -18,6 +19,7 @@ void CollisionSystem::update(entt::registry& registry, float deltaTime){
         auto& dynamicTransform = dynamics.get<TransformComponent>(dynamicEntity);
         auto& dynamicCollider = dynamics.get<BoxColliderComponent>(dynamicEntity);
         auto& dynamicRigidBody = dynamics.get<RigidBodyComponent>(dynamicEntity);
+        glm::vec3 VelOfObject = dynamicRigidBody.velocity;
 
         if (dynamicRigidBody.isStatic)
             continue;
@@ -51,7 +53,17 @@ void CollisionSystem::update(entt::registry& registry, float deltaTime){
 
                 if (dynamicRigidBody.velocity.y < 0.0f){
                     dynamicRigidBody.velocity.y = 0.0f;
+                    dynamicRigidBody.velocity.x *= 0.99f;
+                    dynamicRigidBody.velocity.z *= 0.99f;
+                    if (glm::abs(dynamicRigidBody.velocity.x) < 0.01f)
+                        dynamicRigidBody.velocity.x = 0.0f;
+                    if (glm::abs(dynamicRigidBody.velocity.z) < 0.01f)
+                        dynamicRigidBody.velocity.z = 0.0f;
                 }
+                else {
+                    dynamicRigidBody.velocity = VelOfObject;
+                }
+                //dynamicRigidBody.isStatic = true;
             }
         }
     }
