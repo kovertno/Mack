@@ -16,11 +16,13 @@
 #include "Window.hpp"
 #include "Shader.hpp"
 #include "Camera.hpp"
+#include <EntityManager.hpp>
 
 #include "TransformComponent.hpp"
 #include "BoxMeshComponent.hpp"
 #include "CrosshairMeshComponent.hpp"
 #include "MaterialComponent.hpp"
+#include "GrassMeshComponent.hpp"
 
 #include "RenderSystem.h"
 

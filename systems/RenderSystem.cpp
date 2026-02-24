@@ -7,6 +7,7 @@
 #include "BoxMeshComponent.hpp"
 #include "CrosshairMeshComponent.hpp"
 #include "MaterialComponent.hpp"
+#include "GrassMeshComponent.hpp"
 
 #include <entt/entt.hpp>
 
@@ -84,4 +85,33 @@ void RenderSystem::RenderCrosshair(entt::registry& registry, Shader* shader) {
 
     glBindVertexArray(mesh.VAO);
     glDrawArrays(GL_TRIANGLES, 0, mesh.numOfVertices);
+}
+
+void RenderSystem::SetGrassStaticUniforms(Shader* shader) {
+    shader->Use();
+
+    glm::mat4 projection = glm::mat4(1.0f);
+    projection = glm::perspective(glm::radians(45.0f), (float)Game::SCR_WIDTH / (float)Game::SCR_HEIGHT, 0.1f, 100.0f);
+    shader->SetMat4("projection", projection);
+}
+
+void RenderSystem::SetGrassDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera) {
+    shader->Use();
+
+    shader->SetMat4("view", camera->GetViewMatrix());
+}
+
+void RenderSystem::RenderGrass(entt::registry& registry, Shader* shader) {
+    shader->Use();
+
+    auto view = registry.view<TransformComponent, GrassMeshComponent>();
+    for (auto entity : view) {
+        auto& transform = view.get<TransformComponent>(entity);
+        auto& mesh = view.get<GrassMeshComponent>(entity);
+
+        shader->SetMat4("model", transform.GetModelMatrix());
+
+        glBindVertexArray(mesh.VAO);
+        glDrawArrays(GL_TRIANGLES, 0, mesh.numOfVertices);
+    }
 }

@@ -5,11 +5,13 @@
 #include "Window.hpp"
 #include "Shader.hpp"
 #include "Camera.hpp"
+#include <EntityManager.hpp>
 
 #include "TransformComponent.hpp"
 #include "BoxMeshComponent.hpp"
 #include "CrosshairMeshComponent.hpp"
 #include "MaterialComponent.hpp"
+#include "GrassMeshComponent.hpp"
 
 #include "RenderSystem.h"
 
@@ -28,9 +30,11 @@
 class Game {
 private:
 	GLFWwindow* window = nullptr;
+	std::unique_ptr<EntityManager> entityManager = nullptr;
 	std::unique_ptr<Camera> camera = nullptr;
 	std::unique_ptr<Shader> cubeShader = nullptr;
 	std::unique_ptr<Shader> crosshairShader = nullptr;
+	std::unique_ptr<Shader> grassShader = nullptr;
 	// delta Time
 	float deltaTime = 0.0f;
 	float lastFrame = 0.0f;
@@ -45,6 +49,9 @@ private:
 
 	unsigned int crosshairVAO;
 	unsigned int crosshairVBO;
+
+	unsigned int grassVAO;
+	unsigned int grassVBO;
 public:
 	entt::registry registry;
 
@@ -58,6 +65,9 @@ public:
 
 		glDeleteVertexArrays(1, &crosshairVAO);
 		glDeleteBuffers(1, &crosshairVBO);
+
+		glDeleteVertexArrays(1, &grassVAO);
+		glDeleteBuffers(1, &grassVBO);
 
 		glfwTerminate();
 	}

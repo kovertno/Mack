@@ -9,6 +9,7 @@
 #include "BoxMeshComponent.hpp"
 #include "CrosshairMeshComponent.hpp"
 #include "MaterialComponent.hpp"
+#include "GrassMeshComponent.hpp"
 
 #include <entt/entt.hpp>
 
@@ -31,6 +32,9 @@ public:
 	static void RenderBoxes(entt::registry& registry, Shader* shader);
 	static void SetCrosshairStaticUniforms(Shader* shader);
 	static void RenderCrosshair(entt::registry& registry, Shader* shader);
+	static void SetGrassStaticUniforms(Shader* shader);
+	static void SetGrassDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera);
+	static void RenderGrass(entt::registry& registry, Shader* shader);
 };
 
 #endif
