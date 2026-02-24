@@ -1,8 +1,7 @@
 #pragma once
 #include <entt/entt.hpp>
 
-class PhysicsSystem
-{
+class CollisionSystem {
 public:
 	static void update(entt::registry& registry, float deltaTime);
 };
