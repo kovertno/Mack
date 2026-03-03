@@ -9,6 +9,7 @@
 #include "GravityComponent.h"
 #include "KnockBackComponent.hpp"
 #include "RigidBodyComponent.h"
+#include "StaticColliderComponent.hpp"
 
 #include <entt/entt.hpp>
 #include <glm/glm.hpp>
@@ -42,7 +43,7 @@ void EntityManager::CreateEnemies(unsigned int VAO, unsigned int numOfEnemies) {
         cube1Material.specular = glm::vec3(1.0f, 1.0f, 1.0f);
         auto& box1Mesh = m_registry.emplace<BoxMeshComponent>(enemyEntity);
         auto& box1Gravity = m_registry.emplace<GravityComponent>(enemyEntity, glm::vec3(0.0f, -9.0f, 0.0f));
-        auto& box1Rigidbody = m_registry.emplace<RigidBodyComponent>(enemyEntity, glm::vec3(0.0f), glm::vec3(0.0f), false);
+        auto& box1Rigidbody = m_registry.emplace<RigidBodyComponent>(enemyEntity, glm::vec3(0.0f), glm::vec3(0.0f),2.0f);
         auto& box1Collider = m_registry.emplace<BoxColliderComponent>(enemyEntity);
         auto& box1KnockBack = m_registry.emplace<KnockBackComponent>(enemyEntity);
         box1Mesh.VAO = VAO;
@@ -63,7 +64,7 @@ void EntityManager::CreateFloor(unsigned int VAO) {
     floorMaterial.shininess = 8.0f;
     auto& floorMesh = m_registry.emplace<BoxMeshComponent>(floorEntity);
     auto& floorCollider = m_registry.emplace<BoxColliderComponent>(floorEntity);
-    auto& floorRigidbody = m_registry.emplace<RigidBodyComponent>(floorEntity, glm::vec3(0.0f), glm::vec3(0.0f), true);
+    auto& floorStaticColl = m_registry.emplace<StaticColliderComponent>(floorEntity);
     floorMesh.VAO = VAO;
     floorMesh.numOfVertices = 36;
 }
