@@ -6,13 +6,13 @@
 #include "ModelMesh.hpp"
 #include "Model.hpp"
 
-#include "TransformComponent.hpp"
-#include "BoxMeshComponent.hpp"
-#include "CrosshairMeshComponent.hpp"
-#include "MaterialComponent.hpp"
-#include "GrassMeshComponent.hpp"
+
 
 #include "RenderSystem.h"
+#include "PhysicsSystem.h"
+#include "CollisionSystem.hpp"
+#include "RayCastSystem.hpp"
+#include "KnockBackSystem.hpp"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -104,6 +104,8 @@ void Game::Update() {
     float currentFrame = (float)glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
+    PhysicsSystem::update(registry, deltaTime);
+    CollisionSystem::update(registry, deltaTime);
 }
 
 void Game::Render() {
