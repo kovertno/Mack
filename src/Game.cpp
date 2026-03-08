@@ -56,6 +56,7 @@ void Game::Init() {
     entityManager->CreateBackpackModel();
 
     RenderSystem::SetDirectionalLightUniforms(cubeShader.get());
+    RenderSystem::SetDirectionalLightUniforms(modelShader.get());
     RenderSystem::SetCrosshairStaticUniforms(crosshairShader.get());
     RenderSystem::SetBoxStaticUniforms(cubeShader.get());
     RenderSystem::SetGrassStaticUniforms(grassShader.get());

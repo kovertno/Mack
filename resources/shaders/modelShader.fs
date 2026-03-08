@@ -6,28 +6,53 @@ in vec3 FragPos;
 
 out vec4 FragColor;
 
-#define MAX_DIFFUSE 4
-uniform sampler2D texture_diffuse[MAX_DIFFUSE];
+struct DirLight {
+	vec3 direction;
 
+	vec3 ambient;
+	vec3 diffuse;
+	vec3 specular;
+};
+uniform DirLight dirLight;
+
+#define MAX_DIFFUSE 4
 #define MAX_SPECULAR 4
-uniform sampler2D texture_specular[MAX_SPECULAR];
+struct Material {
+	sampler2D texture_diffuse[MAX_DIFFUSE];
+	sampler2D texture_specular[MAX_SPECULAR];
+
+	float shininess;
+};
+uniform Material material;
 
 uniform int diffNum;
 uniform int specNum;
+uniform vec3 viewPos;
 
+vec3 CalcDirLight(DirLight dirLight, Material material, vec3 FragPos, vec3 normal, vec3 viewDir, int diffNum, int specNum);
 
 void main() {
+	vec3 normal = normalize(Normal);
+	vec3 viewDir = normalize(viewPos - FragPos);
+	vec3 result = CalcDirLight(dirLight, material, FragPos, normal, viewDir, diffNum, specNum);
+	FragColor = vec4(result, 1.0);
+}
+
+vec3 CalcDirLight(DirLight dirLight, Material material, vec3 FragPos, vec3 normal, vec3 viewDir, int diffNum, int specNum) {
+	vec3 lightDir = normalize(-dirLight.direction);
+	float diff = max(dot(lightDir, normal), 0.0);
+	vec3 reflectDir = reflect(-lightDir, normal);
+	float spec = pow(max(dot(reflectDir, viewDir), 0.0), material.shininess);
 
 	vec3 diffuse = vec3(0.0);
-	for (int i = 0; i < diffNum; i++) {
-		diffuse += vec3(texture(texture_diffuse[i], TexCoords));
+	for (int i = 0; i < diffNum; ++i) {
+		diffuse += dirLight.diffuse * diff * vec3(texture(material.texture_diffuse[i], TexCoords));
 	}
 
 	vec3 specular = vec3(0.0);
-	for (int i = 0; i < specNum; i++) {
-		specular += vec3(texture(texture_specular[i], TexCoords));  
+	for (int i = 0; i < specNum; ++i) {
+		specular += dirLight.specular * spec * vec3(texture(material.texture_specular[i], TexCoords));
 	}
-	
-	FragColor = vec4(diffuse + specular, 1.0);
-	//FragColor = vec4(TexCoords, 0.0, 1.0);
+
+	return (diffuse + specular);
 }

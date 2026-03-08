@@ -128,6 +128,8 @@ void RenderSystem::SetBackpackDynamicUniforms(Shader* shader, std::unique_ptr<Ca
     shader->Use();
 
     shader->SetMat4("view", camera->GetViewMatrix());
+
+    shader->SetVec3("viewPos", camera->Position);
 }
  
 void RenderSystem::RenderBackpack(entt::registry& registry, Shader* shader) {
@@ -139,6 +141,7 @@ void RenderSystem::RenderBackpack(entt::registry& registry, Shader* shader) {
     auto& mesh = view.get<ModelMeshComponent>(entity);
 
     shader->SetMat4("model", transform.GetModelMatrix());
+    shader->SetFloat("material.shininess", 32.0f);
 
     mesh.model.Draw(shader);
 } 

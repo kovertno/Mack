@@ -6,6 +6,11 @@
 #include "MaterialComponent.hpp"
 #include "GrassMeshComponent.hpp"
 #include "ModelMeshComponent.hpp"
+#include "GravityComponent.h"
+#include "RigidBodyComponent.h"
+#include "BoxColliderComponent.hpp"
+#include "KnockBackComponent.hpp"
+#include "StaticColliderComponent.hpp"
 #include "Model.hpp"
 
 #include <entt/entt.hpp>

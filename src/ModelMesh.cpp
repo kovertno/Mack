@@ -61,7 +61,7 @@ void ModelMesh::Draw(Shader* shader) {
 			number = std::to_string(specularNr++);
 
 		// now set the sampler to the correct texture unit
-		shader->SetInt((name + "[" + number + "]").c_str(), i);
+		shader->SetInt(("material." + name + "[" + number + "]").c_str(), i);
 
 		// and finally bind the texture
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);
