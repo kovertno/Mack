@@ -6,6 +6,7 @@
 #include "CrosshairMeshComponent.hpp"
 #include "MaterialComponent.hpp"
 #include "GrassMeshComponent.hpp"
+#include "ModelMeshComponent.hpp"
 
 #include <entt/entt.hpp>
 
@@ -21,6 +22,7 @@ public:
 	void CreateEnemies(unsigned int VAO, unsigned int numOfEnemies);
 	void CreateFloor(unsigned int VAO);
 	void CreateGrass(unsigned int VAO);
+	void CreateBackpackModel();
 };
 
 #endif

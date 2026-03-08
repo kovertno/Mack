@@ -5,7 +5,9 @@
 #include "Window.hpp"
 #include "Shader.hpp"
 #include "Camera.hpp"
-#include <EntityManager.hpp>
+#include "EntityManager.hpp"
+#include "ModelMesh.hpp"
+#include "Model.hpp"
 
 #include "TransformComponent.hpp"
 #include "BoxMeshComponent.hpp"
@@ -35,6 +37,7 @@ private:
 	std::unique_ptr<Shader> cubeShader = nullptr;
 	std::unique_ptr<Shader> crosshairShader = nullptr;
 	std::unique_ptr<Shader> grassShader = nullptr;
+	std::unique_ptr<Shader> modelShader = nullptr;
 	// delta Time
 	float deltaTime = 0.0f;
 	float lastFrame = 0.0f;
@@ -43,6 +46,8 @@ private:
 	inline static float lastY = 400;
 	// is it the first time loading the mouse position
 	inline static bool isFirstMouse = true;
+
+	bool isDebugMode = false;
 
 	unsigned int cubeVAO;
 	unsigned int cubeVBO;

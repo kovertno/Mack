@@ -5,6 +5,8 @@
 #include "CrosshairMeshComponent.hpp"
 #include "MaterialComponent.hpp"
 #include "GrassMeshComponent.hpp"
+#include "ModelMeshComponent.hpp"
+#include "Model.hpp"
 
 #include <entt/entt.hpp>
 #include <glm/glm.hpp>
@@ -27,7 +29,7 @@ void EntityManager::CreateEnemies(unsigned int VAO, unsigned int numOfEnemies) {
         glm::vec3{ 0.0f, 0.25f, -2.0f }
     };
 
-    for (unsigned int i = 0; i < numOfEnemies; i++) {
+    for (unsigned int i = 0; i < numOfEnemies; ++i) {
         entt::entity enemyEntity = m_registry.create();
         auto& box1Transform = m_registry.emplace<TransformComponent>(enemyEntity);
         box1Transform.position = enemyPos[i];
@@ -61,14 +63,14 @@ void EntityManager::CreateFloor(unsigned int VAO) {
 void EntityManager::CreateGrass(unsigned int VAO) {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_real_distribution<float> disX(-13.0f, 13.0f);
-    std::uniform_real_distribution<float> disZ(-13.0f, 13.0f);
+    std::uniform_real_distribution<float> disX(-14.0f, 14.0f);
+    std::uniform_real_distribution<float> disZ(-14.0f, 14.0f);
 
-    uint16_t numOfGrass = 450;
+    constexpr uint16_t numOfGrass = 600;
 
     std::vector<glm::vec3> grassPos{};
 
-    for (uint16_t i = 0; i < numOfGrass; i++) {
+    for (uint16_t i = 0; i < numOfGrass; ++i) {
         float randomX = disX(gen);
         float randomZ = disZ(gen);
         grassPos.push_back(glm::vec3(randomX, 0.0f, randomZ));
@@ -78,7 +80,7 @@ void EntityManager::CreateGrass(unsigned int VAO) {
     std::uniform_real_distribution<float> rotX(-20.0f, 20.0f);
     std::uniform_real_distribution<float> rotY(-180.0f, 180.0f);
 
-    for (uint16_t i = 0; i < numOfGrass; i++) {
+    for (uint16_t i = 0; i < numOfGrass; ++i) {
         entt::entity grassEntity = m_registry.create();
         auto& grassTransform = m_registry.emplace<TransformComponent>(grassEntity);
         grassTransform.position = grassPos[i];
@@ -90,4 +92,13 @@ void EntityManager::CreateGrass(unsigned int VAO) {
         grassMesh.VAO = VAO;
         grassMesh.numOfVertices = 3;
     }
+}
+
+void EntityManager::CreateBackpackModel() {
+    entt::entity backpackEntity = m_registry.create();
+    auto& backpackTransform = m_registry.emplace<TransformComponent>(backpackEntity);
+    backpackTransform.position = glm::vec3(2.0f, 1.0f, 0.0f);
+    backpackTransform.scale = glm::vec3(0.5f, 0.5f, 0.5f);
+    auto& backpackModel = m_registry.emplace<ModelMeshComponent>(backpackEntity);
+    backpackModel.model.LoadModel("resources/models/backpack/backpack.obj");
 }

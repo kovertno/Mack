@@ -10,6 +10,7 @@
 #include "CrosshairMeshComponent.hpp"
 #include "MaterialComponent.hpp"
 #include "GrassMeshComponent.hpp"
+#include "ModelMeshComponent.hpp"
 
 #include <entt/entt.hpp>
 
@@ -35,6 +36,9 @@ public:
 	static void SetGrassStaticUniforms(Shader* shader);
 	static void SetGrassDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera);
 	static void RenderGrass(entt::registry& registry, Shader* shader);
+	static void SetBackpackStaticUniforms(Shader* shader);
+	static void SetBackpackDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera);
+	static void RenderBackpack(entt::registry& registry, Shader* shader);
 };
 
 #endif

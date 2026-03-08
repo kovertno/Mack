@@ -22,8 +22,8 @@ void RenderSystem::SetDirectionalLightUniforms(Shader* shader) {
 
     shader->SetVec3("dirLight.direction", 0.0f, -2.0f, -3.0f);
     shader->SetVec3("dirLight.ambient", 0.3f, 0.3f, 0.3f);
-    shader->SetVec3("dirLight.diffuse", 0.7f, 0.7f, 0.7f);
-    shader->SetVec3("dirLight.specular", 1.0f, 1.0f, 1.0f);
+    shader->SetVec3("dirLight.diffuse", 0.6f, 0.6f, 0.6f);
+    shader->SetVec3("dirLight.specular", 0.6f, 0.6f, 0.6f);
 }
 
 void RenderSystem::SetBoxStaticUniforms(Shader* shader) {
@@ -115,3 +115,30 @@ void RenderSystem::RenderGrass(entt::registry& registry, Shader* shader) {
         glDrawArrays(GL_TRIANGLES, 0, mesh.numOfVertices);
     }
 }
+
+void RenderSystem::SetBackpackStaticUniforms(Shader* shader) {
+    shader->Use();
+
+    glm::mat4 projection = glm::mat4(1.0f);
+    projection = glm::perspective(glm::radians(45.0f), (float)Game::SCR_WIDTH / (float)Game::SCR_HEIGHT, 0.1f, 100.0f);
+    shader->SetMat4("projection", projection);
+}
+
+void RenderSystem::SetBackpackDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera) {
+    shader->Use();
+
+    shader->SetMat4("view", camera->GetViewMatrix());
+}
+ 
+void RenderSystem::RenderBackpack(entt::registry& registry, Shader* shader) {
+    shader->Use();
+
+    auto view = registry.view<TransformComponent, ModelMeshComponent>();
+    auto entity = view.front();
+    auto& transform = view.get<TransformComponent>(entity);
+    auto& mesh = view.get<ModelMeshComponent>(entity);
+
+    shader->SetMat4("model", transform.GetModelMatrix());
+
+    mesh.model.Draw(shader);
+} 

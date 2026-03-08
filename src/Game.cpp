@@ -2,7 +2,9 @@
 #include "Window.hpp"
 #include "Shader.hpp"
 #include "Camera.hpp"
-#include <EntityManager.hpp>
+#include "EntityManager.hpp"
+#include "ModelMesh.hpp"
+#include "Model.hpp"
 
 #include "TransformComponent.hpp"
 #include "BoxMeshComponent.hpp"
@@ -36,6 +38,7 @@ void Game::Init() {
     crosshairShader = std::make_unique<Shader>("resources/shaders/crosshairShader.vs", "resources/shaders/crosshairShader.fs");
     cubeShader = std::make_unique<Shader>("resources/shaders/cubeShader.vs", "resources/shaders/cubeShader.fs");
     grassShader = std::make_unique<Shader>("resources/shaders/grassShader.vs", "resources/shaders/grassShader.fs");
+    modelShader = std::make_unique<Shader>("resources/shaders/modelShader.vs", "resources/shaders/modelShader.fs");
 
     CrosshairMeshComponent::SetCrosshairVAO(crosshairVAO, crosshairVAO);
     BoxMeshComponent::SetBoxVAO(cubeVAO, cubeVBO);
@@ -49,11 +52,14 @@ void Game::Init() {
     entityManager->CreateFloor(cubeVAO);
     // grass
     entityManager->CreateGrass(grassVAO);
+    // backpack
+    entityManager->CreateBackpackModel();
 
     RenderSystem::SetDirectionalLightUniforms(cubeShader.get());
     RenderSystem::SetCrosshairStaticUniforms(crosshairShader.get());
     RenderSystem::SetBoxStaticUniforms(cubeShader.get());
     RenderSystem::SetGrassStaticUniforms(grassShader.get());
+    RenderSystem::SetBackpackStaticUniforms(modelShader.get());
 }
 
 void Game::Run() {
@@ -83,6 +89,15 @@ void Game::ProcessInput() {
         camera->KeyboardMovement(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera->KeyboardMovement(RIGHT, deltaTime);
+
+    static bool qPressed = false;
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS && !qPressed) {
+        isDebugMode != isDebugMode;
+        qPressed = true;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_RELEASE)
+        qPressed = false;
 }
 
 void Game::Update() {
@@ -94,11 +109,13 @@ void Game::Update() {
 void Game::Render() {
     RenderSystem::SetBoxDynamicUniforms(cubeShader.get(), camera);
     RenderSystem::SetGrassDynamicUniforms(grassShader.get(), camera);
+    RenderSystem::SetBackpackDynamicUniforms(modelShader.get(), camera);
 
     // enable depth testing for 3d world
     glEnable(GL_DEPTH_TEST);
     RenderSystem::RenderBoxes(registry, cubeShader.get());
     RenderSystem::RenderGrass(registry, grassShader.get());
+    RenderSystem::RenderBackpack(registry, modelShader.get());
 
     // disable depth testing for 2d elements
     glDisable(GL_DEPTH_TEST);
