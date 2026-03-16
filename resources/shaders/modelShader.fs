@@ -20,6 +20,7 @@ uniform DirLight dirLight;
 struct Material {
 	sampler2D texture_diffuse[MAX_DIFFUSE];
 	sampler2D texture_specular[MAX_SPECULAR];
+	vec3 baseColor;
 
 	float shininess;
 };
@@ -44,9 +45,18 @@ vec3 CalcDirLight(DirLight dirLight, Material material, vec3 FragPos, vec3 norma
 	vec3 reflectDir = reflect(-lightDir, normal);
 	float spec = pow(max(dot(reflectDir, viewDir), 0.0), material.shininess);
 
+	vec3 ambient = vec3(0.0);
 	vec3 diffuse = vec3(0.0);
-	for (int i = 0; i < diffNum; ++i) {
-		diffuse += dirLight.diffuse * diff * vec3(texture(material.texture_diffuse[i], TexCoords));
+
+	if(diffNum > 0) {
+		for (int i = 0; i < diffNum; ++i) {
+			ambient += dirLight.ambient * vec3(texture(material.texture_diffuse[i], TexCoords));
+			diffuse += dirLight.diffuse * diff * vec3(texture(material.texture_diffuse[i], TexCoords));
+		}
+	}
+	else {
+		ambient += dirLight.ambient * material.baseColor;
+		diffuse += dirLight.diffuse * diff * material.baseColor;
 	}
 
 	vec3 specular = vec3(0.0);
@@ -54,5 +64,5 @@ vec3 CalcDirLight(DirLight dirLight, Material material, vec3 FragPos, vec3 norma
 		specular += dirLight.specular * spec * vec3(texture(material.texture_specular[i], TexCoords));
 	}
 
-	return (diffuse + specular);
+	return (ambient + diffuse + specular);
 }

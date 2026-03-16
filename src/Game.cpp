@@ -6,8 +6,6 @@
 #include "ModelMesh.hpp"
 #include "Model.hpp"
 
-
-
 #include "RenderSystem.h"
 #include "PhysicsSystem.h"
 #include "CollisionSystem.hpp"
@@ -52,15 +50,27 @@ void Game::Init() {
     entityManager->CreateFloor(cubeVAO);
     // grass
     entityManager->CreateGrass(grassVAO);
-    // backpack
-    entityManager->CreateBackpackModel();
+    // tree
+    entityManager->CreateTreeModel();
+    // trunk
+    entityManager->CreateTrunkModel();
+    // rock
+    entityManager->CreateRockModel();
+    // bush
+    entityManager->CreateBushModel();
+    // mushroom
+    entityManager->CreateMushroomModel();
 
     RenderSystem::SetDirectionalLightUniforms(cubeShader.get());
     RenderSystem::SetDirectionalLightUniforms(modelShader.get());
     RenderSystem::SetCrosshairStaticUniforms(crosshairShader.get());
     RenderSystem::SetBoxStaticUniforms(cubeShader.get());
-    RenderSystem::SetGrassStaticUniforms(grassShader.get());
-    RenderSystem::SetBackpackStaticUniforms(modelShader.get());
+    RenderSystem::SetGrassStaticUniforms(grassShader.get()); 
+    RenderSystem::SetTreeStaticUniforms(modelShader.get());
+    RenderSystem::SetTrunkStaticUniforms(modelShader.get());
+    RenderSystem::SetRockStaticUniforms(modelShader.get());
+    RenderSystem::SetBushStaticUniforms(modelShader.get());
+    RenderSystem::SetMushroomStaticUniforms(modelShader.get());
 }
 
 void Game::Run() {
@@ -112,13 +122,21 @@ void Game::Update() {
 void Game::Render() {
     RenderSystem::SetBoxDynamicUniforms(cubeShader.get(), camera);
     RenderSystem::SetGrassDynamicUniforms(grassShader.get(), camera);
-    RenderSystem::SetBackpackDynamicUniforms(modelShader.get(), camera);
+    RenderSystem::SetTreeDynamicUniforms(modelShader.get(), camera);
+    RenderSystem::SetTrunkDynamicUniforms(modelShader.get(), camera);
+    RenderSystem::SetRockDynamicUniforms(modelShader.get(), camera);
+    RenderSystem::SetBushDynamicUniforms(modelShader.get(), camera);
+    RenderSystem::SetMushroomDynamicUniforms(modelShader.get(), camera);
 
     // enable depth testing for 3d world
     glEnable(GL_DEPTH_TEST);
     RenderSystem::RenderBoxes(registry, cubeShader.get());
     RenderSystem::RenderGrass(registry, grassShader.get());
-    RenderSystem::RenderBackpack(registry, modelShader.get());
+    RenderSystem::RenderTree(registry, modelShader.get());
+    RenderSystem::RenderTrunk(registry, modelShader.get());
+    RenderSystem::RenderRock(registry, modelShader.get());
+    RenderSystem::RenderBush(registry, modelShader.get());
+    RenderSystem::RenderMushroom(registry, modelShader.get());
 
     // disable depth testing for 2d elements
     glDisable(GL_DEPTH_TEST);

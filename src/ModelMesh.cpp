@@ -10,10 +10,11 @@
 #include <string>
 #include <vector>
 
-ModelMesh::ModelMesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) {
+ModelMesh::ModelMesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, glm::vec3 baseColor) {
 	this->vertices = vertices;
 	this->indices = indices;
 	this->textures = textures;
+	this->baseColor = baseColor;
 
 	SetupMesh();
 }
@@ -69,6 +70,8 @@ void ModelMesh::Draw(Shader* shader) {
 
 	shader->SetInt("diffNum", diffuseNr);
 	shader->SetInt("specNum", specularNr);
+
+	shader->SetVec3("material.baseColor", this->baseColor);
 
 	// draw mesh
 	glBindVertexArray(VAO);

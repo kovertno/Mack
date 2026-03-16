@@ -31,7 +31,8 @@ void Model::LoadModel(const std::string& path) {
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
 		std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
 		return;
-	}
+	}	
+	std::cout << "Model loaded: " << path << " meshes: " << scene->mNumMeshes << std::endl;
 	// retrieve the directory path of the filepath
 	directory = path.substr(0, path.find_last_of('/'));
 
@@ -102,14 +103,27 @@ ModelMesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene) {
 	// we assume a convention for campler names in the shaders. Each texture should be named
 	// as 'texture_diffuseN' (depending on the texture type) where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER.
 
-	// 1.diffuse maps
+	// retrieve base color if any
+	aiColor4D color{};
+	glm::vec3 baseColor{};
+	if (aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, &color) == aiReturn_SUCCESS) {
+		baseColor = glm::vec3(color.r, color.g, color.b);
+	}
+	else if (aiGetMaterialColor(material, AI_MATKEY_BASE_COLOR, &color) == aiReturn_SUCCESS) {
+		baseColor = glm::vec3(color.r, color.g, color.b);
+	}
+
+	// 1.diffuse maps (OBJ)
 	std::vector<Texture> diffuseMaps = LoadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
 	textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-	// 2.specular maps
+	// 2.base color maps (glTF)
+	std::vector<Texture> baseColorMaps = LoadMaterialTextures(material, aiTextureType_BASE_COLOR, "texture_diffuse");
+	textures.insert(textures.end(), baseColorMaps.begin(), baseColorMaps.end());
+	// 3.specular maps (OBJ)
 	std::vector<Texture> specularMaps = LoadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
 	textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 
-	return ModelMesh(vertices, indices, textures);
+	return ModelMesh(vertices, indices, textures, baseColor);
 }
 
 std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* material, aiTextureType type, const std::string& typeName) {
@@ -154,10 +168,18 @@ unsigned int TextureFromFile(const char* path, const std::string& directory) {
 		GLenum format {};
 		if (nrComponents == 1)
 			format = GL_RED;
+		else if (nrComponents == 2)
+			format = GL_RG;
 		else if (nrComponents == 3)
 			format = GL_RGB;
 		else if (nrComponents == 4)
 			format = GL_RGBA;
+		else {
+			fprintf(stderr, "Unsuported texture format with %d components\n", nrComponents);
+			stbi_image_free(data);
+			glDeleteTextures(1, &textureID);
+			return 0;
+		}
 
 		glBindTexture(GL_TEXTURE_2D, textureID);
 		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);

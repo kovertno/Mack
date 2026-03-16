@@ -33,8 +33,9 @@ public:
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 	std::vector<Texture> textures;
+	glm::vec3 baseColor;
 
-	ModelMesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
+	ModelMesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, glm::vec3 baseColor);
 	~ModelMesh() = default;
 
 	void Draw(Shader* shader);

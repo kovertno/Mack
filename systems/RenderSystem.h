@@ -11,6 +11,11 @@
 #include "MaterialComponent.hpp"
 #include "GrassMeshComponent.hpp"
 #include "ModelMeshComponent.hpp"
+#include "TreeModelComponent.hpp"
+#include "TrunkModelComponent.hpp"
+#include "RockModelComponent.hpp"
+#include "BushModelComponent.hpp"
+#include "MushroomModelComponent.hpp"
 
 #include <entt/entt.hpp>
 
@@ -39,6 +44,21 @@ public:
 	static void SetBackpackStaticUniforms(Shader* shader);
 	static void SetBackpackDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera);
 	static void RenderBackpack(entt::registry& registry, Shader* shader);
+	static void SetTreeStaticUniforms(Shader* shader);
+	static void SetTreeDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera);
+	static void RenderTree(entt::registry& registry, Shader* shader);
+	static void SetTrunkStaticUniforms(Shader* shader);
+	static void SetTrunkDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera);
+	static void RenderTrunk(entt::registry& registry, Shader* shader);
+	static void SetRockStaticUniforms(Shader* shader);
+	static void SetRockDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera);
+	static void RenderRock(entt::registry& registry, Shader* shader);
+	static void SetBushStaticUniforms(Shader* shader);
+	static void SetBushDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera);
+	static void RenderBush(entt::registry& registry, Shader* shader);
+	static void SetMushroomStaticUniforms(Shader* shader);
+	static void SetMushroomDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera);
+	static void RenderMushroom(entt::registry& registry, Shader* shader);
 };
 
 #endif
