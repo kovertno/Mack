@@ -39,7 +39,7 @@ private:
 	// is it the first time loading the mouse position
 	inline static bool isFirstMouse = true;
 
-	bool isDebugMode = false;
+	bool isOrbitMode = false;
 
 	unsigned int cubeVAO;
 	unsigned int cubeVBO;

@@ -94,18 +94,31 @@ void Game::ProcessInput() {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera->KeyboardMovement(FORWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera->KeyboardMovement(BACKWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera->KeyboardMovement(LEFT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera->KeyboardMovement(RIGHT, deltaTime);
+    if (!isOrbitMode) {
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+            camera->KeyboardMovement(FORWARD, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+            camera->KeyboardMovement(BACKWARD, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+            camera->KeyboardMovement(LEFT, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+            camera->KeyboardMovement(RIGHT, deltaTime);
+    }
+    else {
+        static float radius = 40.0f; // is set in entity manager -> floor
+        static float angle = 0.0f;
+        static constexpr float speed = 0.30f;
+        float x = 0.0f + radius * cos(angle);
+        float z = 0.0f + radius * sin(angle);
+        camera->Position = glm::vec3(x, 8.0f, z);
+        camera->Front = glm::normalize(0.0f - camera->Position);
+        angle += speed * deltaTime;
+
+    }
 
     static bool qPressed = false;
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS && !qPressed) {
-        isDebugMode != isDebugMode;
+        isOrbitMode = !isOrbitMode;
         qPressed = true;
     }
 
