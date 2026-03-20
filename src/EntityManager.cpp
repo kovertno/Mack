@@ -16,6 +16,7 @@
 #include "RockModelComponent.hpp"
 #include "BushModelComponent.hpp"
 #include "MushroomModelComponent.hpp"
+#include "OutlineComponent.hpp"
 #include "Model.hpp"
 
 #include <entt/entt.hpp>
@@ -60,6 +61,7 @@ void EntityManager::CreateEnemies(unsigned int VAO, unsigned int numOfEnemies) {
         auto& box1KnockBack = m_registry.emplace<KnockBackComponent>(enemyEntity);
         box1Mesh.VAO = VAO;
         box1Mesh.numOfVertices = 36;
+        m_registry.emplace<OutlineComponent>(enemyEntity);
     }
 }
 
@@ -130,7 +132,7 @@ void EntityManager::CreateTreeModel() {
     std::uniform_real_distribution<float> disX(-29.0f, 29.0f);
     std::uniform_real_distribution<float> disZ(-29.0f, 29.0f);
 
-    constexpr uint16_t numOfTrees = 10;
+    constexpr uint16_t numOfTrees = 12;
 
     std::vector<glm::vec3> treePositions{};
 
@@ -157,6 +159,7 @@ void EntityManager::CreateTreeModel() {
         auto& treeModel = m_registry.emplace<ModelMeshComponent>(treeEntity);
         treeModel.model.LoadModel("resources/models/low_poly_trees_grass_and_rocks/tree_round.gltf");
         m_registry.emplace<TreeModelComponent>(treeEntity);
+        m_registry.emplace<OutlineComponent>(treeEntity);
     }
 }
 
@@ -196,6 +199,7 @@ void EntityManager::CreateTrunkModel() {
         else
             trunkModel.model.LoadModel("resources/models/low_poly_trees_grass_and_rocks/trunk2.gltf");
         m_registry.emplace<TrunkModelComponent>(trunkEntity);
+        m_registry.emplace<OutlineComponent>(trunkEntity);
 
         ++i;
     }
@@ -234,6 +238,7 @@ void EntityManager::CreateRockModel() {
         auto& rockModel = m_registry.emplace<ModelMeshComponent>(rockEntity);
         rockModel.model.LoadModel("resources/models/low_poly_trees_grass_and_rocks/rock" + std::to_string(static_cast<int>(modNum(gen))) + ".gltf");
         m_registry.emplace<RockModelComponent>(rockEntity);
+        m_registry.emplace<OutlineComponent>(rockEntity);
     }
 }
 
@@ -270,6 +275,7 @@ void EntityManager::CreateBushModel() {
         auto& rockModel = m_registry.emplace<ModelMeshComponent>(bushEntity);
         rockModel.model.LoadModel("resources/models/low_poly_trees_grass_and_rocks/bush" + std::to_string(static_cast<int>(modNum(gen))) + ".gltf");
         m_registry.emplace<BushModelComponent>(bushEntity);
+        m_registry.emplace<OutlineComponent>(bushEntity);
     }
 }
 
@@ -313,6 +319,7 @@ void EntityManager::CreateMushroomModel() {
         auto& mushroomModel = m_registry.emplace<ModelMeshComponent>(mushroomEntity);
         mushroomModel.model.LoadModel("resources/models/low_poly_trees_grass_and_rocks/mushroom" + std::to_string(numOfModel) + ".gltf");
         m_registry.emplace<MushroomModelComponent>(mushroomEntity);
+        m_registry.emplace<OutlineComponent>(mushroomEntity);
     }
 }
 

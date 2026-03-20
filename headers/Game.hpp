@@ -1,19 +1,10 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "Game.hpp"
 #include "Window.hpp"
 #include "Shader.hpp"
 #include "Camera.hpp"
 #include "EntityManager.hpp"
-#include "ModelMesh.hpp"
-#include "Model.hpp"
-
-#include "TransformComponent.hpp"
-#include "BoxMeshComponent.hpp"
-#include "CrosshairMeshComponent.hpp"
-#include "MaterialComponent.hpp"
-#include "GrassMeshComponent.hpp"
 
 #include "RenderSystem.h"
 
@@ -38,6 +29,7 @@ private:
 	std::unique_ptr<Shader> crosshairShader = nullptr;
 	std::unique_ptr<Shader> grassShader = nullptr;
 	std::unique_ptr<Shader> modelShader = nullptr;
+	std::unique_ptr<Shader> outlineShader = nullptr;
 	// delta Time
 	float deltaTime = 0.0f;
 	float lastFrame = 0.0f;
