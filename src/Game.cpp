@@ -105,7 +105,7 @@ void Game::ProcessInput() {
             camera->KeyboardMovement(RIGHT, deltaTime);
     }
     else {
-        static float radius = 40.0f; // is set in entity manager -> floor
+        static float radius = 40.0f; // taken from entity manager -> floor
         static float angle = 0.0f;
         static constexpr float speed = 0.30f;
         float x = 0.0f + radius * cos(angle);
@@ -150,14 +150,17 @@ void Game::Render() {
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     glStencilMask(0x00);
 
-    RenderSystem::RenderFloor(registry, cubeShader.get());
-    RenderSystem::RenderGrass(registry, grassShader.get());
-    RenderSystem::RenderBoxes(registry, cubeShader.get(), outlineShader.get());
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
     RenderSystem::RenderTree(registry, modelShader.get(), outlineShader.get());
     RenderSystem::RenderTrunk(registry, modelShader.get(), outlineShader.get());
     RenderSystem::RenderRock(registry, modelShader.get(), outlineShader.get());
     RenderSystem::RenderBush(registry, modelShader.get(), outlineShader.get());
     RenderSystem::RenderMushroom(registry, modelShader.get(), outlineShader.get());
+    glDisable(GL_CULL_FACE);
+    RenderSystem::RenderGrass(registry, grassShader.get());
+    RenderSystem::RenderFloor(registry, cubeShader.get());
+    RenderSystem::RenderBoxes(registry, cubeShader.get(), outlineShader.get());
      
     // disable depth test for crosshair
     glDisable(GL_DEPTH_TEST);
