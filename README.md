@@ -18,12 +18,3 @@ https://github.com/user-attachments/assets/a5176c04-a1b6-4333-b4d2-25037b31e786
 * **Language:** C++20
 * **Graphics API:** OpenGL 3.3+
 * **Libraries:** EnTT (ECS), GLM (Math), Assimp (Model Loading), glad/GLFW
-
-## 🏗 Build & Run
-```bash
-# Clone the repository
-git clone [https://github.com/kovertno/Mack](https://github.com/kovertno/Mack)
-# Build using CMake
-mkdir build && cd build
-cmake ..
-make
