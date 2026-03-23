@@ -3,6 +3,7 @@
 #include "Shader.hpp"
 #include "Camera.hpp"
 #include "Game.hpp"
+#include "SceneShaders.hpp"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -151,4 +152,59 @@ void ShaderSystem::SetOutlineStaticUniforms(Shader* shader) {
 void ShaderSystem::SetOutlineDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera) {
     shader->Use();
     shader->SetMat4("view", camera->GetViewMatrix());
+}
+
+void ShaderSystem::SetPostProcessing(Shader* shader, unsigned int& VAO, unsigned int& VBO) {
+    float quadVertices[] = { // fills the entire screen in NDCs.
+        // positions   // texCoords
+        -1.0f,  1.0f,  0.0f, 1.0f,
+        -1.0f, -1.0f,  0.0f, 0.0f,
+         1.0f, -1.0f,  1.0f, 0.0f,
+
+        -1.0f,  1.0f,  0.0f, 1.0f,
+         1.0f, -1.0f,  1.0f, 0.0f,
+         1.0f,  1.0f,  1.0f, 1.0f
+    };
+
+	glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+
+	glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glBindVertexArray(0);
+}
+
+void ShaderSystem::SetStaticUniforms(SceneShaders& sceneShaders, unsigned int& framebufferVAO, unsigned int& framebufferVBO) {
+    ShaderSystem::SetDirectionalLightUniforms(sceneShaders.cubeShader);
+    ShaderSystem::SetDirectionalLightUniforms(sceneShaders.modelShader);
+    ShaderSystem::SetCrosshairStaticUniforms(sceneShaders.crosshairShader);
+    ShaderSystem::SetBoxStaticUniforms(sceneShaders.cubeShader);
+    ShaderSystem::SetGrassStaticUniforms(sceneShaders.grassShader);
+    ShaderSystem::SetTreeStaticUniforms(sceneShaders.modelShader);
+    ShaderSystem::SetTrunkStaticUniforms(sceneShaders.modelShader);
+    ShaderSystem::SetRockStaticUniforms(sceneShaders.modelShader);
+    ShaderSystem::SetBushStaticUniforms(sceneShaders.modelShader);
+    ShaderSystem::SetMushroomStaticUniforms(sceneShaders.modelShader);
+    ShaderSystem::SetOutlineStaticUniforms(sceneShaders.outlineShader);
+    ShaderSystem::SetPostProcessing(sceneShaders.postProcessingShader, framebufferVAO, framebufferVBO);
+}
+
+void ShaderSystem::SetDynamicUniforms(SceneShaders& sceneShaders, std::unique_ptr<Camera>& camera) {
+    ShaderSystem::SetBoxDynamicUniforms(sceneShaders.cubeShader, camera);
+    ShaderSystem::SetGrassDynamicUniforms(sceneShaders.grassShader, camera);
+    ShaderSystem::SetTreeDynamicUniforms(sceneShaders.modelShader, camera);
+    ShaderSystem::SetTrunkDynamicUniforms(sceneShaders.modelShader, camera);
+    ShaderSystem::SetRockDynamicUniforms(sceneShaders.modelShader, camera);
+    ShaderSystem::SetBushDynamicUniforms(sceneShaders.modelShader, camera);
+    ShaderSystem::SetMushroomDynamicUniforms(sceneShaders.modelShader, camera);
+    ShaderSystem::SetOutlineDynamicUniforms(sceneShaders.outlineShader, camera);
 }

@@ -5,6 +5,8 @@
 #include "EntityManager.hpp"
 #include "ModelMesh.hpp"
 #include "Model.hpp"
+#include "Framebuffer.hpp"
+#include "SceneShaders.hpp"
 
 #include "RenderSystem.h"
 #include "PhysicsSystem.h"
@@ -39,6 +41,9 @@ void Game::Init() {
     grassShader = std::make_unique<Shader>("resources/shaders/grassShader.vs", "resources/shaders/grassShader.fs");
     modelShader = std::make_unique<Shader>("resources/shaders/modelShader.vs", "resources/shaders/modelShader.fs");
     outlineShader = std::make_unique<Shader>("resources/shaders/outlineShader.vs", "resources/shaders/outlineShader.fs");
+	postProcessingShader = std::make_unique<Shader>("resources/shaders/postProcessingShader.vs", "resources/shaders/postProcessingShader.fs");
+
+    sceneShaders = {cubeShader.get(), crosshairShader.get(), grassShader.get(), modelShader.get(), outlineShader.get(), postProcessingShader.get()};
 
     CrosshairMeshComponent::SetCrosshairVAO(crosshairVAO, crosshairVBO);
     BoxMeshComponent::SetBoxVAO(cubeVAO, cubeVBO);
@@ -63,24 +68,12 @@ void Game::Init() {
     // mushroom
     entityManager->CreateMushroomModel();
 
-    ShaderSystem::SetDirectionalLightUniforms(cubeShader.get());
-    ShaderSystem::SetDirectionalLightUniforms(modelShader.get());
-    ShaderSystem::SetCrosshairStaticUniforms(crosshairShader.get());
-    ShaderSystem::SetBoxStaticUniforms(cubeShader.get());
-    ShaderSystem::SetGrassStaticUniforms(grassShader.get());
-    ShaderSystem::SetTreeStaticUniforms(modelShader.get());
-    ShaderSystem::SetTrunkStaticUniforms(modelShader.get());
-    ShaderSystem::SetRockStaticUniforms(modelShader.get());
-    ShaderSystem::SetBushStaticUniforms(modelShader.get());
-    ShaderSystem::SetMushroomStaticUniforms(modelShader.get());
-    ShaderSystem::SetOutlineStaticUniforms(outlineShader.get());
+    framebuffer = std::make_unique<Framebuffer>();
+    ShaderSystem::SetStaticUniforms(sceneShaders, framebufferVAO, framebufferVBO);
 }
 
 void Game::Run() {
       while (!glfwWindowShouldClose(window)) {
-          // clear buffers
-          glClearColor(0.0f, 0.5f, 0.5f, 1.0f);
-          glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
           ProcessInput();
           Update();
           Render();
@@ -124,6 +117,15 @@ void Game::ProcessInput() {
 
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_RELEASE)
         qPressed = false;
+
+    static bool ePressed = false;
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && !ePressed) {
+        isPostProcessingEnabled = !isPostProcessingEnabled;
+        ePressed = true;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_RELEASE)
+        ePressed = false;
 }
 
 void Game::Update() {
@@ -135,41 +137,58 @@ void Game::Update() {
 }
 
 void Game::Render() {
-    ShaderSystem::SetBoxDynamicUniforms(cubeShader.get(), camera);
-    ShaderSystem::SetGrassDynamicUniforms(grassShader.get(), camera);
-    ShaderSystem::SetTreeDynamicUniforms(modelShader.get(), camera);
-    ShaderSystem::SetTrunkDynamicUniforms(modelShader.get(), camera);
-    ShaderSystem::SetRockDynamicUniforms(modelShader.get(), camera);
-    ShaderSystem::SetBushDynamicUniforms(modelShader.get(), camera);
-    ShaderSystem::SetMushroomDynamicUniforms(modelShader.get(), camera);
-    ShaderSystem::SetOutlineDynamicUniforms(outlineShader.get(), camera);
+    if (!isPostProcessingEnabled) {
+        // clear buffers
+        glClearColor(0.0f, 0.5f, 0.5f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        ShaderSystem::SetDynamicUniforms(sceneShaders, camera);
 
-    // enable depth testing
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_STENCIL_TEST);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-    glStencilMask(0x00);
 
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    RenderSystem::RenderTree(registry, modelShader.get(), outlineShader.get());
-    RenderSystem::RenderTrunk(registry, modelShader.get(), outlineShader.get());
-    RenderSystem::RenderRock(registry, modelShader.get(), outlineShader.get());
-    RenderSystem::RenderBush(registry, modelShader.get(), outlineShader.get());
-    RenderSystem::RenderMushroom(registry, modelShader.get(), outlineShader.get());
-    glDisable(GL_CULL_FACE);
-    RenderSystem::RenderGrass(registry, grassShader.get());
-    RenderSystem::RenderFloor(registry, cubeShader.get());
-    RenderSystem::RenderBoxes(registry, cubeShader.get(), outlineShader.get());
-     
-    // disable depth test for crosshair
-    glDisable(GL_DEPTH_TEST);
-    RenderSystem::RenderCrosshair(registry, crosshairShader.get()); // render crosshair since we need it with depth test disabled
-    
-    // reset stencil opeitons to default for proper next iteration and stencil buffer clear
-    glStencilFunc(GL_ALWAYS, 1, 0xFF);
-    glStencilMask(0xFF);
-    glEnable(GL_DEPTH_TEST);
+        // enable depth testing
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_STENCIL_TEST);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+        glStencilMask(0x00);
+
+        RenderSystem::RenderScene(registry, sceneShaders);
+
+        // disable depth test for crosshair
+        glDisable(GL_DEPTH_TEST);
+        RenderSystem::RenderCrosshair(registry, crosshairShader.get()); // render crosshair since we need it with depth test disabled
+    }
+    else {
+        framebuffer->Bind();
+        // clear buffers
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        ShaderSystem::SetDynamicUniforms(sceneShaders, camera);
+
+        // enable depth testing
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_STENCIL_TEST);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+        glStencilMask(0x00);
+
+        RenderSystem::RenderScene(registry, sceneShaders);
+
+        // reset stencil opeitons to default for proper next iteration and stencil buffer clear
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glStencilMask(0xFF);
+        glEnable(GL_DEPTH_TEST);
+
+        framebuffer->Unbind();
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // disable depth
+        glDisable(GL_DEPTH_TEST);
+        RenderSystem::RenderPostProcessing(postProcessingShader.get(), framebufferVAO, framebuffer->GetTexture());   
+        RenderSystem::RenderCrosshair(registry, crosshairShader.get()); 
+
+        // reset stencil opeitons to default for proper next iteration and stencil buffer clear
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glStencilMask(0xFF);
+        glEnable(GL_DEPTH_TEST);
+    }
 }
 
 void Game::SetCallbacks() {

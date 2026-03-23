@@ -3,6 +3,7 @@
 
 #include "Shader.hpp"
 #include "Camera.hpp"
+#include "SceneShaders.hpp"
 
 #include "TransformComponent.hpp"
 #include "BoxMeshComponent.hpp"
@@ -16,6 +17,7 @@
 #include "BushModelComponent.hpp"
 #include "MushroomModelComponent.hpp"
 #include "OutlineComponent.hpp"
+#include "Framebuffer.hpp"
 
 #include <entt/entt.hpp>
 
@@ -41,6 +43,8 @@ public:
 	static void RenderRock(entt::registry& registry, Shader* modelShader, Shader* outlineShader);
 	static void RenderBush(entt::registry& registry, Shader* modelShader, Shader* outlineShader);
 	static void RenderMushroom(entt::registry& registry, Shader* modelShader, Shader* outlineShader);
+	static void RenderPostProcessing(Shader* shader, unsigned int VAO, unsigned int textureAttachment);
+	static void RenderScene(entt::registry& registry, SceneShaders& sceneShaders);
 };
 
 #endif

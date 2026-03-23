@@ -4,12 +4,13 @@
 #include "Shader.hpp"
 #include "Camera.hpp"
 #include "Game.hpp"
+#include "SceneShaders.hpp"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>"
+#include <glm/gtc/matrix_transform.hpp>
 
 class ShaderSystem {
 private:
@@ -36,6 +37,9 @@ public:
 	static void SetMushroomDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera);
 	static void SetOutlineStaticUniforms(Shader* shader);
 	static void SetOutlineDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera);
+	static void SetPostProcessing(Shader* shader, unsigned int& VAO, unsigned int& VBO);
+	static void SetStaticUniforms(SceneShaders& sceneShaders, unsigned int& framebufferVAO, unsigned int& framebufferVBO);
+	static void SetDynamicUniforms(SceneShaders& sceneShaders, std::unique_ptr<Camera>& camera);
 };
 
 #endif

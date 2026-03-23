@@ -13,6 +13,8 @@
 #include "BushModelComponent.hpp"
 #include "MushroomModelComponent.hpp"
 #include "OutlineComponent.hpp"
+#include "Framebuffer.hpp"
+#include "SceneShaders.hpp"
 
 #include <entt/entt.hpp>
 
@@ -227,4 +229,29 @@ void RenderSystem::RenderMushroom(entt::registry& registry, Shader* modelShader,
         outlineShader->SetMat4("model", transform.GetModelMatrix());
         mesh.model.Draw(outlineShader);
     }
+}
+
+void RenderSystem::RenderPostProcessing(Shader* shader, unsigned int VAO, unsigned int textureAttachment) {
+    shader->Use();
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureAttachment);
+	shader->SetInt("screenTexture", 0);
+
+	glBindVertexArray(VAO);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void RenderSystem::RenderScene(entt::registry& registry, SceneShaders& sceneShaders) {
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    RenderSystem::RenderTree(registry, sceneShaders.modelShader, sceneShaders.outlineShader);
+    RenderSystem::RenderTrunk(registry, sceneShaders.modelShader, sceneShaders.outlineShader);
+    RenderSystem::RenderRock(registry, sceneShaders.modelShader, sceneShaders.outlineShader);
+    RenderSystem::RenderBush(registry, sceneShaders.modelShader, sceneShaders.outlineShader);
+    RenderSystem::RenderMushroom(registry, sceneShaders.modelShader, sceneShaders.outlineShader);
+    glDisable(GL_CULL_FACE);
+    RenderSystem::RenderGrass(registry, sceneShaders.grassShader);
+    RenderSystem::RenderFloor(registry, sceneShaders.cubeShader);
+    RenderSystem::RenderBoxes(registry, sceneShaders.cubeShader, sceneShaders.outlineShader);
 }
