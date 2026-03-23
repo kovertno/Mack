@@ -13,6 +13,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <vector>
+#include <string>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -60,6 +63,18 @@ private:
 	std::unique_ptr<Framebuffer> framebuffer = nullptr;
 	unsigned int framebufferVAO;
 	unsigned int framebufferVBO;
+
+	std::vector<std::string> skyboxFaces
+	{
+		"resources/textures/skybox/right.jpg",
+		"resources/textures/skybox/left.jpg",
+		"resources/textures/skybox/top.jpg",
+		"resources/textures/skybox/bottom.jpg",
+		"resources/textures/skybox/front.jpg",
+		"resources/textures/skybox/back.jpg"
+	};
+	unsigned int cubemapTexture;
+
 public:
 	entt::registry registry;
 
@@ -79,6 +94,8 @@ public:
 
 		glDeleteVertexArrays(1, &framebufferVAO);
 		glDeleteBuffers(1, &framebufferVBO);
+
+		glDeleteTextures(1, &cubemapTexture);
 
 		glfwTerminate();
 	}

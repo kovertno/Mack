@@ -7,6 +7,7 @@
 #include "Model.hpp"
 #include "Framebuffer.hpp"
 #include "SceneShaders.hpp"
+#include "TextureUtils.hpp"
 
 #include "RenderSystem.h"
 #include "PhysicsSystem.h"
@@ -48,6 +49,9 @@ void Game::Init() {
     CrosshairMeshComponent::SetCrosshairVAO(crosshairVAO, crosshairVBO);
     BoxMeshComponent::SetBoxVAO(cubeVAO, cubeVBO);
     GrassMeshComponent::SetGrassVAO(grassVAO, grassVBO);
+
+    cubemapTexture = TextureUtils::LoadCubemap(skyboxFaces);
+
     // crosshair
     entityManager->CreateCrosshair(crosshairVAO);
     // enemies
