@@ -1,17 +1,12 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "Game.hpp"
 #include "Window.hpp"
 #include "Shader.hpp"
 #include "Camera.hpp"
-#include <EntityManager.hpp>
-
-#include "TransformComponent.hpp"
-#include "BoxMeshComponent.hpp"
-#include "CrosshairMeshComponent.hpp"
-#include "MaterialComponent.hpp"
-#include "GrassMeshComponent.hpp"
+#include "EntityManager.hpp"
+#include "Framebuffer.hpp"
+#include "SceneShaders.hpp"
 
 #include "RenderSystem.h"
 
@@ -35,6 +30,12 @@ private:
 	std::unique_ptr<Shader> cubeShader = nullptr;
 	std::unique_ptr<Shader> crosshairShader = nullptr;
 	std::unique_ptr<Shader> grassShader = nullptr;
+	std::unique_ptr<Shader> modelShader = nullptr;
+	std::unique_ptr<Shader> outlineShader = nullptr;
+	std::unique_ptr<Shader> postProcessingShader = nullptr;
+
+	SceneShaders sceneShaders;
+
 	// delta Time
 	float deltaTime = 0.0f;
 	float lastFrame = 0.0f;
@@ -44,6 +45,9 @@ private:
 	// is it the first time loading the mouse position
 	inline static bool isFirstMouse = true;
 
+	bool isOrbitMode = false;
+	bool isPostProcessingEnabled = false;
+
 	unsigned int cubeVAO;
 	unsigned int cubeVBO;
 
@@ -52,6 +56,10 @@ private:
 
 	unsigned int grassVAO;
 	unsigned int grassVBO;
+
+	std::unique_ptr<Framebuffer> framebuffer = nullptr;
+	unsigned int framebufferVAO;
+	unsigned int framebufferVBO;
 public:
 	entt::registry registry;
 
@@ -68,6 +76,9 @@ public:
 
 		glDeleteVertexArrays(1, &grassVAO);
 		glDeleteBuffers(1, &grassVBO);
+
+		glDeleteVertexArrays(1, &framebufferVAO);
+		glDeleteBuffers(1, &framebufferVBO);
 
 		glfwTerminate();
 	}

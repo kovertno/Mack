@@ -28,6 +28,8 @@ struct CrosshairMeshComponent {
 
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(0);
+
+		glBindVertexArray(0);
 	}
 };
 

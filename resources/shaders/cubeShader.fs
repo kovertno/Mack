@@ -24,7 +24,11 @@ in vec3 FragPos;
 
 out vec4 FragColor;
 
+const float near = 0.1;
+const float far = 100.0;
+
 vec3 CalcDirLight(DirLight dirLight, Material material, vec3 FragPos, vec3 normal, vec3 viewDir);
+float LinearizeDepth(float depth);
 
 void main() {
 	vec3 viewDir = normalize(viewPos - FragPos);
@@ -33,7 +37,9 @@ void main() {
 
 	vec3 result = CalcDirLight(dirLight, material, FragPos, normal, viewDir);
 	
+	//float depth = LinearizeDepth(gl_FragCoord.z) / far;
 	FragColor = vec4(result, 1.0); 
+	//FragColor = vec4(vec3(depth), 1.0);
 }
 
 vec3 CalcDirLight(DirLight dirLight, Material material, vec3 FragPos, vec3 normal, vec3 viewDir) {
@@ -49,4 +55,9 @@ vec3 CalcDirLight(DirLight dirLight, Material material, vec3 FragPos, vec3 norma
 	vec3 specular = dirLight.specular * spec * material.specular;
 
 	return (ambient + diffuse + specular);
+}
+
+float LinearizeDepth(float depth) {
+	float ndc = depth * 2.0 - 1.0; 
+	return (2.0 * near * far) / (far + near - ndc * (far - near));
 }

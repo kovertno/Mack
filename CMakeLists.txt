@@ -14,6 +14,7 @@ file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.c" "systems/*.cpp")
 # Find libraries installed via vcpkg
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
+find_package(assimp CONFIG REQUIRED)
 
 # Define the executable and its source files
 add_executable(Mack ${SOURCES})
@@ -34,4 +35,4 @@ if (CMAKE_VERSION VERSION_GREATER 3.12)
 endif()
 
 # Link libraries to the executable
-target_link_libraries(Mack PRIVATE glfw glm::glm)
+target_link_libraries(Mack PRIVATE glfw glm::glm assimp::assimp)

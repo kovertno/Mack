@@ -2,15 +2,18 @@
 #include "Window.hpp"
 #include "Shader.hpp"
 #include "Camera.hpp"
-#include <EntityManager.hpp>
-
-
+#include "EntityManager.hpp"
+#include "ModelMesh.hpp"
+#include "Model.hpp"
+#include "Framebuffer.hpp"
+#include "SceneShaders.hpp"
 
 #include "RenderSystem.h"
 #include "PhysicsSystem.h"
 #include "CollisionSystem.hpp"
 #include "RayCastSystem.hpp"
 #include "KnockBackSystem.hpp"
+#include "ShaderSystem.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -36,8 +39,13 @@ void Game::Init() {
     crosshairShader = std::make_unique<Shader>("resources/shaders/crosshairShader.vs", "resources/shaders/crosshairShader.fs");
     cubeShader = std::make_unique<Shader>("resources/shaders/cubeShader.vs", "resources/shaders/cubeShader.fs");
     grassShader = std::make_unique<Shader>("resources/shaders/grassShader.vs", "resources/shaders/grassShader.fs");
+    modelShader = std::make_unique<Shader>("resources/shaders/modelShader.vs", "resources/shaders/modelShader.fs");
+    outlineShader = std::make_unique<Shader>("resources/shaders/outlineShader.vs", "resources/shaders/outlineShader.fs");
+	postProcessingShader = std::make_unique<Shader>("resources/shaders/postProcessingShader.vs", "resources/shaders/postProcessingShader.fs");
 
-    CrosshairMeshComponent::SetCrosshairVAO(crosshairVAO, crosshairVAO);
+    sceneShaders = {cubeShader.get(), crosshairShader.get(), grassShader.get(), modelShader.get(), outlineShader.get(), postProcessingShader.get()};
+
+    CrosshairMeshComponent::SetCrosshairVAO(crosshairVAO, crosshairVBO);
     BoxMeshComponent::SetBoxVAO(cubeVAO, cubeVBO);
     GrassMeshComponent::SetGrassVAO(grassVAO, grassVBO);
     // crosshair
@@ -49,19 +57,23 @@ void Game::Init() {
     entityManager->CreateFloor(cubeVAO);
     // grass
     entityManager->CreateGrass(grassVAO);
+    // tree
+    entityManager->CreateTreeModel();
+    // trunk
+    entityManager->CreateTrunkModel();
+    // rock
+    entityManager->CreateRockModel();
+    // bush
+    entityManager->CreateBushModel();
+    // mushroom
+    entityManager->CreateMushroomModel();
 
-    RenderSystem::SetDirectionalLightUniforms(cubeShader.get());
-    RenderSystem::SetCrosshairStaticUniforms(crosshairShader.get());
-    RenderSystem::SetBoxStaticUniforms(cubeShader.get());
-    RenderSystem::SetGrassStaticUniforms(grassShader.get());
+    framebuffer = std::make_unique<Framebuffer>();
+    ShaderSystem::SetStaticUniforms(sceneShaders, framebufferVAO, framebufferVBO);
 }
 
 void Game::Run() {
       while (!glfwWindowShouldClose(window)) {
-          // clear buffers
-          glClearColor(0.0f, 0.5f, 0.5f, 1.0f);
-          glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
           ProcessInput();
           Update();
           Render();
@@ -75,29 +87,45 @@ void Game::ProcessInput() {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera->KeyboardMovement(FORWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera->KeyboardMovement(BACKWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera->KeyboardMovement(LEFT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera->KeyboardMovement(RIGHT, deltaTime);
-
-    static bool mouseWasReleased = true;
-    bool mousePressed = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
-
-    if (mousePressed && mouseWasReleased) {
-        mouseWasReleased = false;
-        entt::entity hit = RayCastSystem::RayCast(registry, camera->Position, camera->Front, 50.0f);
-
-        if (hit != entt::null) {
-            auto& t = registry.get<TransformComponent>(hit);
-            KnockBackSystem::ApplyKnockBack(registry, hit, camera->Front, 2.0f);
-        }
+    if (!isOrbitMode) {
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+            camera->KeyboardMovement(FORWARD, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+            camera->KeyboardMovement(BACKWARD, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+            camera->KeyboardMovement(LEFT, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+            camera->KeyboardMovement(RIGHT, deltaTime);
     }
-    if (!mousePressed)
-        mouseWasReleased = true;
+    else {
+        static float radius = 40.0f; // taken from entity manager -> floor
+        static float angle = 0.0f;
+        static constexpr float speed = 0.30f;
+        float x = 0.0f + radius * cos(angle);
+        float z = 0.0f + radius * sin(angle);
+        camera->Position = glm::vec3(x, 8.0f, z);
+        camera->Front = glm::normalize(0.0f - camera->Position);
+        angle += speed * deltaTime;
+
+    }
+
+    static bool qPressed = false;
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS && !qPressed) {
+        isOrbitMode = !isOrbitMode;
+        qPressed = true;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_RELEASE)
+        qPressed = false;
+
+    static bool ePressed = false;
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && !ePressed) {
+        isPostProcessingEnabled = !isPostProcessingEnabled;
+        ePressed = true;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_RELEASE)
+        ePressed = false;
 }
 
 void Game::Update() {
@@ -109,17 +137,58 @@ void Game::Update() {
 }
 
 void Game::Render() {
-    RenderSystem::SetBoxDynamicUniforms(cubeShader.get(), camera);
-    RenderSystem::SetGrassDynamicUniforms(grassShader.get(), camera);
+    if (!isPostProcessingEnabled) {
+        // clear buffers
+        glClearColor(0.0f, 0.5f, 0.5f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        ShaderSystem::SetDynamicUniforms(sceneShaders, camera);
 
-    // enable depth testing for 3d world
-    glEnable(GL_DEPTH_TEST);
-    RenderSystem::RenderBoxes(registry, cubeShader.get());
-    RenderSystem::RenderGrass(registry, grassShader.get());
 
-    // disable depth testing for 2d elements
-    glDisable(GL_DEPTH_TEST);
-    RenderSystem::RenderCrosshair(registry, crosshairShader.get());
+        // enable depth testing
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_STENCIL_TEST);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+        glStencilMask(0x00);
+
+        RenderSystem::RenderScene(registry, sceneShaders);
+
+        // disable depth test for crosshair
+        glDisable(GL_DEPTH_TEST);
+        RenderSystem::RenderCrosshair(registry, crosshairShader.get()); // render crosshair since we need it with depth test disabled
+    }
+    else {
+        framebuffer->Bind();
+        // clear buffers
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        ShaderSystem::SetDynamicUniforms(sceneShaders, camera);
+
+        // enable depth testing
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_STENCIL_TEST);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+        glStencilMask(0x00);
+
+        RenderSystem::RenderScene(registry, sceneShaders);
+
+        // reset stencil opeitons to default for proper next iteration and stencil buffer clear
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glStencilMask(0xFF);
+        glEnable(GL_DEPTH_TEST);
+
+        framebuffer->Unbind();
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // disable depth
+        glDisable(GL_DEPTH_TEST);
+        RenderSystem::RenderPostProcessing(postProcessingShader.get(), framebufferVAO, framebuffer->GetTexture());   
+        RenderSystem::RenderCrosshair(registry, crosshairShader.get()); 
+
+        // reset stencil opeitons to default for proper next iteration and stencil buffer clear
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glStencilMask(0xFF);
+        glEnable(GL_DEPTH_TEST);
+    }
 }
 
 void Game::SetCallbacks() {

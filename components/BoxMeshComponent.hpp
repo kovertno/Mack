@@ -67,6 +67,8 @@ struct BoxMeshComponent {
 
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
+
+        glBindVertexArray(0);
 	}
 };
 

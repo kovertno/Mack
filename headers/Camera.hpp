@@ -13,11 +13,11 @@ enum Camera_Movement {
 };
 
 // default camera values
-static constexpr float FOV = 45.0f;
-static constexpr float YAW = -90.0f;
-static constexpr float PITCH = 0.0f;
-static constexpr float MOVEMENT_SPEED = 4.0f;
-static constexpr float MOUSE_SENSITIVITY = 0.1f;
+inline constexpr float FOV = 45.0f;
+inline constexpr float YAW = -90.0f;
+inline constexpr float PITCH = 0.0f;
+inline constexpr float MOVEMENT_SPEED = 4.0f;
+inline constexpr float MOUSE_SENSITIVITY = 0.1f;
 
 class Camera {
 private:

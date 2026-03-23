@@ -3,13 +3,21 @@
 
 #include "Shader.hpp"
 #include "Camera.hpp"
-#include "Game.hpp"
+#include "SceneShaders.hpp"
 
 #include "TransformComponent.hpp"
 #include "BoxMeshComponent.hpp"
 #include "CrosshairMeshComponent.hpp"
 #include "MaterialComponent.hpp"
 #include "GrassMeshComponent.hpp"
+#include "ModelMeshComponent.hpp"
+#include "TreeModelComponent.hpp"
+#include "TrunkModelComponent.hpp"
+#include "RockModelComponent.hpp"
+#include "BushModelComponent.hpp"
+#include "MushroomModelComponent.hpp"
+#include "OutlineComponent.hpp"
+#include "Framebuffer.hpp"
 
 #include <entt/entt.hpp>
 
@@ -26,15 +34,17 @@ public:
 	RenderSystem() = default;
 	~RenderSystem() = default;
 	
-	static void SetDirectionalLightUniforms(Shader* shader);
-	static void SetBoxStaticUniforms(Shader* shader);
-	static void SetBoxDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera);
-	static void RenderBoxes(entt::registry& registry, Shader* shader);
-	static void SetCrosshairStaticUniforms(Shader* shader);
+	static void RenderBoxes(entt::registry& registry, Shader* cubeShader, Shader* outlineShader);
+	static void RenderFloor(entt::registry& registry, Shader* shader);
 	static void RenderCrosshair(entt::registry& registry, Shader* shader);
-	static void SetGrassStaticUniforms(Shader* shader);
-	static void SetGrassDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera);
 	static void RenderGrass(entt::registry& registry, Shader* shader);
+	static void RenderTree(entt::registry& registry, Shader* modelShader, Shader* outlineShader);
+	static void RenderTrunk(entt::registry& registry, Shader* modelShader, Shader* outlineShader);
+	static void RenderRock(entt::registry& registry, Shader* modelShader, Shader* outlineShader);
+	static void RenderBush(entt::registry& registry, Shader* modelShader, Shader* outlineShader);
+	static void RenderMushroom(entt::registry& registry, Shader* modelShader, Shader* outlineShader);
+	static void RenderPostProcessing(Shader* shader, unsigned int VAO, unsigned int textureAttachment);
+	static void RenderScene(entt::registry& registry, SceneShaders& sceneShaders);
 };
 
 #endif

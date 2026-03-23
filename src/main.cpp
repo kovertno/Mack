@@ -16,7 +16,9 @@
 #include "Window.hpp"
 #include "Shader.hpp"
 #include "Camera.hpp"
-#include <EntityManager.hpp>
+#include "EntityManager.hpp"
+#include "ModelMesh.hpp"
+#include "Model.hpp"
 
 #include "TransformComponent.hpp"
 #include "BoxMeshComponent.hpp"
