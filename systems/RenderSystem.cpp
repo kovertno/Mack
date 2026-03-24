@@ -242,9 +242,24 @@ void RenderSystem::RenderPostProcessing(Shader* shader, unsigned int VAO, unsign
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void RenderSystem::RenderScene(entt::registry& registry, SceneShaders& sceneShaders) {
+void RenderSystem::RenderSkybox(Shader* shader, unsigned int VAO, unsigned int skyboxTexture) {
+    shader->Use();
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
+    shader->SetInt("skybox", 0);
+
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+}
+
+void RenderSystem::RenderScene(entt::registry& registry, SceneShaders& sceneShaders, unsigned int skyboxVAO, unsigned int skyboxTexture) {
+    glDisable(GL_CULL_FACE);
+    glDepthMask(GL_FALSE); //disable depth mask for skybox so everything is drawn on top
+    RenderSystem::RenderSkybox(sceneShaders.skyboxShader, skyboxVAO, skyboxTexture);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
+    glDepthMask(GL_TRUE);
     RenderSystem::RenderTree(registry, sceneShaders.modelShader, sceneShaders.outlineShader);
     RenderSystem::RenderTrunk(registry, sceneShaders.modelShader, sceneShaders.outlineShader);
     RenderSystem::RenderRock(registry, sceneShaders.modelShader, sceneShaders.outlineShader);

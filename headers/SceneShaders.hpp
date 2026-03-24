@@ -10,6 +10,7 @@ struct SceneShaders {
 	Shader* modelShader = nullptr;
 	Shader* outlineShader = nullptr;
 	Shader* postProcessingShader = nullptr;
+	Shader* skyboxShader = nullptr;
 };
 
 #endif

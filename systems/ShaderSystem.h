@@ -38,7 +38,10 @@ public:
 	static void SetOutlineStaticUniforms(Shader* shader);
 	static void SetOutlineDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera);
 	static void SetPostProcessing(Shader* shader, unsigned int& VAO, unsigned int& VBO);
-	static void SetStaticUniforms(SceneShaders& sceneShaders, unsigned int& framebufferVAO, unsigned int& framebufferVBO);
+	static void SetSkyboxVAO(unsigned int& VAO, unsigned int& VBO);
+	static void SetSkyboxStaticUnifoms(Shader* shader);
+	static void SetSkyboxDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera);
+	static void SetStaticUniforms(SceneShaders& sceneShaders, unsigned int& framebufferVAO, unsigned int& framebufferVBO, unsigned int& skyboxVAO, unsigned int& skyboxVBO);
 	static void SetDynamicUniforms(SceneShaders& sceneShaders, std::unique_ptr<Camera>& camera);
 };
 

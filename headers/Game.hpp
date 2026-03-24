@@ -36,6 +36,7 @@ private:
 	std::unique_ptr<Shader> modelShader = nullptr;
 	std::unique_ptr<Shader> outlineShader = nullptr;
 	std::unique_ptr<Shader> postProcessingShader = nullptr;
+	std::unique_ptr<Shader> skyboxShader = nullptr;
 
 	SceneShaders sceneShaders;
 
@@ -64,16 +65,18 @@ private:
 	unsigned int framebufferVAO;
 	unsigned int framebufferVBO;
 
+	unsigned int skyboxVAO;
+	unsigned int skyboxVBO;
 	std::vector<std::string> skyboxFaces
 	{
-		"resources/textures/skybox/right.jpg",
-		"resources/textures/skybox/left.jpg",
-		"resources/textures/skybox/top.jpg",
-		"resources/textures/skybox/bottom.jpg",
-		"resources/textures/skybox/front.jpg",
-		"resources/textures/skybox/back.jpg"
+		"resources/textures/skybox/right.png",
+		"resources/textures/skybox/left.png",
+		"resources/textures/skybox/top.png",
+		"resources/textures/skybox/bottom.png",
+		"resources/textures/skybox/front.png",
+		"resources/textures/skybox/back.png"
 	};
-	unsigned int cubemapTexture;
+	unsigned int skyboxTexture;
 
 public:
 	entt::registry registry;
@@ -95,7 +98,10 @@ public:
 		glDeleteVertexArrays(1, &framebufferVAO);
 		glDeleteBuffers(1, &framebufferVBO);
 
-		glDeleteTextures(1, &cubemapTexture);
+		glDeleteVertexArrays(1, &skyboxVAO);
+		glDeleteBuffers(1, &skyboxVBO);
+
+		glDeleteTextures(1, &skyboxTexture);
 
 		glfwTerminate();
 	}

@@ -183,7 +183,80 @@ void ShaderSystem::SetPostProcessing(Shader* shader, unsigned int& VAO, unsigned
     glBindVertexArray(0);
 }
 
-void ShaderSystem::SetStaticUniforms(SceneShaders& sceneShaders, unsigned int& framebufferVAO, unsigned int& framebufferVBO) {
+void ShaderSystem::SetSkyboxVAO(unsigned int& VAO, unsigned int& VBO) {
+    float skyboxVertices[] = {
+        // positions          
+        -1.0f,  1.0f, -1.0f,
+        -1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+
+        -1.0f, -1.0f,  1.0f,
+        -1.0f, -1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f,
+
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+
+        -1.0f, -1.0f,  1.0f,
+        -1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f, -1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f,
+
+        -1.0f,  1.0f, -1.0f,
+         1.0f,  1.0f, -1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+        -1.0f,  1.0f,  1.0f,
+        -1.0f,  1.0f, -1.0f,
+
+        -1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f,  1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f,  1.0f,
+         1.0f, -1.0f,  1.0f
+    };
+
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+
+    glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices, GL_STATIC_DRAW);
+    
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glBindVertexArray(0);
+}
+
+void ShaderSystem::SetSkyboxStaticUnifoms(Shader* shader) {
+    shader->Use();
+    glm::mat4 projection = glm::mat4(1.0f);
+    projection = glm::perspective(glm::radians(45.0f), static_cast<float>(Game::SCR_WIDTH) / static_cast<float>(Game::SCR_HEIGHT), 0.1f, 100.0f);
+    shader->SetMat4("projection", projection);
+}
+
+void ShaderSystem::SetSkyboxDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera) {
+    shader->Use();
+    glm::mat4 view = glm::mat4(glm::mat3(camera->GetViewMatrix()));
+    shader->SetMat4("view", view);
+}
+
+void ShaderSystem::SetStaticUniforms(SceneShaders& sceneShaders, unsigned int& framebufferVAO, unsigned int& framebufferVBO, unsigned int& skyboxVAO, unsigned int& skyboxVBO) {
     ShaderSystem::SetDirectionalLightUniforms(sceneShaders.cubeShader);
     ShaderSystem::SetDirectionalLightUniforms(sceneShaders.modelShader);
     ShaderSystem::SetCrosshairStaticUniforms(sceneShaders.crosshairShader);
@@ -196,6 +269,8 @@ void ShaderSystem::SetStaticUniforms(SceneShaders& sceneShaders, unsigned int& f
     ShaderSystem::SetMushroomStaticUniforms(sceneShaders.modelShader);
     ShaderSystem::SetOutlineStaticUniforms(sceneShaders.outlineShader);
     ShaderSystem::SetPostProcessing(sceneShaders.postProcessingShader, framebufferVAO, framebufferVBO);
+    ShaderSystem::SetSkyboxVAO(skyboxVAO, skyboxVBO);
+    ShaderSystem::SetSkyboxStaticUnifoms(sceneShaders.skyboxShader);
 }
 
 void ShaderSystem::SetDynamicUniforms(SceneShaders& sceneShaders, std::unique_ptr<Camera>& camera) {
@@ -207,4 +282,5 @@ void ShaderSystem::SetDynamicUniforms(SceneShaders& sceneShaders, std::unique_pt
     ShaderSystem::SetBushDynamicUniforms(sceneShaders.modelShader, camera);
     ShaderSystem::SetMushroomDynamicUniforms(sceneShaders.modelShader, camera);
     ShaderSystem::SetOutlineDynamicUniforms(sceneShaders.outlineShader, camera);
+    ShaderSystem::SetSkyboxDynamicUniforms(sceneShaders.skyboxShader, camera);
 }

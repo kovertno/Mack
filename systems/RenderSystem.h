@@ -44,7 +44,8 @@ public:
 	static void RenderBush(entt::registry& registry, Shader* modelShader, Shader* outlineShader);
 	static void RenderMushroom(entt::registry& registry, Shader* modelShader, Shader* outlineShader);
 	static void RenderPostProcessing(Shader* shader, unsigned int VAO, unsigned int textureAttachment);
-	static void RenderScene(entt::registry& registry, SceneShaders& sceneShaders);
+	static void RenderSkybox(Shader* shader, unsigned int VAO, unsigned int skyboxTexture);
+	static void RenderScene(entt::registry& registry, SceneShaders& sceneShaders, unsigned int skyboxVAO, unsigned int skyboxTexture);
 };
 
 #endif
