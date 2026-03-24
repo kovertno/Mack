@@ -242,7 +242,18 @@ void RenderSystem::RenderPostProcessing(Shader* shader, unsigned int VAO, unsign
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void RenderSystem::RenderScene(entt::registry& registry, SceneShaders& sceneShaders) {
+void RenderSystem::RenderSkybox(Shader* shader, unsigned int VAO, unsigned int skyboxTexture) {
+    shader->Use();
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
+    shader->SetInt("skybox", 0);
+
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+}
+
+void RenderSystem::RenderScene(entt::registry& registry, SceneShaders& sceneShaders, unsigned int skyboxVAO, unsigned int skyboxTexture) {
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     RenderSystem::RenderTree(registry, sceneShaders.modelShader, sceneShaders.outlineShader);
@@ -254,4 +265,7 @@ void RenderSystem::RenderScene(entt::registry& registry, SceneShaders& sceneShad
     RenderSystem::RenderGrass(registry, sceneShaders.grassShader);
     RenderSystem::RenderFloor(registry, sceneShaders.cubeShader);
     RenderSystem::RenderBoxes(registry, sceneShaders.cubeShader, sceneShaders.outlineShader);
+    glDepthFunc(GL_LEQUAL);
+    RenderSystem::RenderSkybox(sceneShaders.skyboxShader, skyboxVAO, skyboxTexture);
+    glDepthFunc(GL_LESS);
 }

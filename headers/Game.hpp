@@ -13,6 +13,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <vector>
+#include <string>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -33,6 +36,7 @@ private:
 	std::unique_ptr<Shader> modelShader = nullptr;
 	std::unique_ptr<Shader> outlineShader = nullptr;
 	std::unique_ptr<Shader> postProcessingShader = nullptr;
+	std::unique_ptr<Shader> skyboxShader = nullptr;
 
 	SceneShaders sceneShaders;
 
@@ -60,6 +64,20 @@ private:
 	std::unique_ptr<Framebuffer> framebuffer = nullptr;
 	unsigned int framebufferVAO;
 	unsigned int framebufferVBO;
+
+	unsigned int skyboxVAO;
+	unsigned int skyboxVBO;
+	std::vector<std::string> skyboxFaces
+	{
+		"resources/textures/skybox/right.png",
+		"resources/textures/skybox/left.png",
+		"resources/textures/skybox/top.png",
+		"resources/textures/skybox/bottom.png",
+		"resources/textures/skybox/front.png",
+		"resources/textures/skybox/back.png"
+	};
+	unsigned int skyboxTexture;
+
 public:
 	entt::registry registry;
 
@@ -79,6 +97,11 @@ public:
 
 		glDeleteVertexArrays(1, &framebufferVAO);
 		glDeleteBuffers(1, &framebufferVBO);
+
+		glDeleteVertexArrays(1, &skyboxVAO);
+		glDeleteBuffers(1, &skyboxVBO);
+
+		glDeleteTextures(1, &skyboxTexture);
 
 		glfwTerminate();
 	}
