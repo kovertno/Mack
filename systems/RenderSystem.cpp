@@ -254,12 +254,8 @@ void RenderSystem::RenderSkybox(Shader* shader, unsigned int VAO, unsigned int s
 }
 
 void RenderSystem::RenderScene(entt::registry& registry, SceneShaders& sceneShaders, unsigned int skyboxVAO, unsigned int skyboxTexture) {
-    glDisable(GL_CULL_FACE);
-    glDepthMask(GL_FALSE); //disable depth mask for skybox so everything is drawn on top
-    RenderSystem::RenderSkybox(sceneShaders.skyboxShader, skyboxVAO, skyboxTexture);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
-    glDepthMask(GL_TRUE);
     RenderSystem::RenderTree(registry, sceneShaders.modelShader, sceneShaders.outlineShader);
     RenderSystem::RenderTrunk(registry, sceneShaders.modelShader, sceneShaders.outlineShader);
     RenderSystem::RenderRock(registry, sceneShaders.modelShader, sceneShaders.outlineShader);
@@ -269,4 +265,7 @@ void RenderSystem::RenderScene(entt::registry& registry, SceneShaders& sceneShad
     RenderSystem::RenderGrass(registry, sceneShaders.grassShader);
     RenderSystem::RenderFloor(registry, sceneShaders.cubeShader);
     RenderSystem::RenderBoxes(registry, sceneShaders.cubeShader, sceneShaders.outlineShader);
+    glDepthFunc(GL_LEQUAL);
+    RenderSystem::RenderSkybox(sceneShaders.skyboxShader, skyboxVAO, skyboxTexture);
+    glDepthFunc(GL_LESS);
 }
