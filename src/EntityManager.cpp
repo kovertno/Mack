@@ -55,10 +55,10 @@ void EntityManager::CreateEnemies(unsigned int VAO, unsigned int numOfEnemies) {
         cube1Material.diffuse = glm::vec3(0.7f, 0.0f, 0.0f);
         cube1Material.specular = glm::vec3(1.0f, 1.0f, 1.0f);
         auto& box1Mesh = m_registry.emplace<BoxMeshComponent>(enemyEntity);
-        auto& box1Gravity = m_registry.emplace<GravityComponent>(enemyEntity, glm::vec3(0.0f, -9.0f, 0.0f));
-        auto& box1Rigidbody = m_registry.emplace<RigidBodyComponent>(enemyEntity, glm::vec3(0.0f), glm::vec3(0.0f),2.0f);
-        auto& box1Collider = m_registry.emplace<BoxColliderComponent>(enemyEntity);
-        auto& box1KnockBack = m_registry.emplace<KnockBackComponent>(enemyEntity);
+        //auto& box1Gravity = m_registry.emplace<GravityComponent>(enemyEntity, glm::vec3(0.0f, -9.0f, 0.0f));
+        //auto& box1Rigidbody = m_registry.emplace<RigidBodyComponent>(enemyEntity, glm::vec3(0.0f), glm::vec3(0.0f),2.0f);
+        //auto& box1Collider = m_registry.emplace<BoxColliderComponent>(enemyEntity);
+        //auto& box1KnockBack = m_registry.emplace<KnockBackComponent>(enemyEntity);
         box1Mesh.VAO = VAO;
         box1Mesh.numOfVertices = 36;
         m_registry.emplace<OutlineComponent>(enemyEntity);
@@ -77,8 +77,8 @@ void EntityManager::CreateFloor(unsigned int VAO) {
     floorMaterial.specular = glm::vec3(0.6f, 0.6f, 0.6f);
     floorMaterial.shininess = 8.0f;
     auto& floorMesh = m_registry.emplace<BoxMeshComponent>(floorEntity);
-    auto& floorCollider = m_registry.emplace<BoxColliderComponent>(floorEntity);
-    auto& floorStaticColl = m_registry.emplace<StaticColliderComponent>(floorEntity);
+    //auto& floorCollider = m_registry.emplace<BoxColliderComponent>(floorEntity);
+    //auto& floorStaticColl = m_registry.emplace<StaticColliderComponent>(floorEntity);
     floorMesh.VAO = VAO;
     floorMesh.numOfVertices = 36;
 }
@@ -321,6 +321,13 @@ void EntityManager::CreateMushroomModel() {
         m_registry.emplace<MushroomModelComponent>(mushroomEntity);
         m_registry.emplace<OutlineComponent>(mushroomEntity);
     }
+}
+
+void EntityManager::CreateFlashlightModel() {
+    entt::entity flashlightEntity = m_registry.create();
+    auto& mushroomModel = m_registry.emplace<ModelMeshComponent>(flashlightEntity);
+
+
 }
 
 bool EntityManager::IsPositionTaken(glm::vec3 position) {

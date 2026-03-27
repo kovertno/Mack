@@ -7,6 +7,7 @@
 #include "Model.hpp"
 #include "Framebuffer.hpp"
 #include "SceneShaders.hpp"
+#include "TextureUtils.hpp"
 
 #include "RenderSystem.h"
 #include "PhysicsSystem.h"
@@ -42,12 +43,14 @@ void Game::Init() {
     modelShader = std::make_unique<Shader>("resources/shaders/modelShader.vs", "resources/shaders/modelShader.fs");
     outlineShader = std::make_unique<Shader>("resources/shaders/outlineShader.vs", "resources/shaders/outlineShader.fs");
 	postProcessingShader = std::make_unique<Shader>("resources/shaders/postProcessingShader.vs", "resources/shaders/postProcessingShader.fs");
+    skyboxShader = std::make_unique<Shader>("resources/shaders/skyboxShader.vs", "resources/shaders/skyboxShader.fs");
 
-    sceneShaders = {cubeShader.get(), crosshairShader.get(), grassShader.get(), modelShader.get(), outlineShader.get(), postProcessingShader.get()};
+    sceneShaders = {cubeShader.get(), crosshairShader.get(), grassShader.get(), modelShader.get(), outlineShader.get(), postProcessingShader.get(), skyboxShader.get()};
 
     CrosshairMeshComponent::SetCrosshairVAO(crosshairVAO, crosshairVBO);
     BoxMeshComponent::SetBoxVAO(cubeVAO, cubeVBO);
     GrassMeshComponent::SetGrassVAO(grassVAO, grassVBO);
+
     // crosshair
     entityManager->CreateCrosshair(crosshairVAO);
     // enemies
@@ -69,7 +72,8 @@ void Game::Init() {
     entityManager->CreateMushroomModel();
 
     framebuffer = std::make_unique<Framebuffer>();
-    ShaderSystem::SetStaticUniforms(sceneShaders, framebufferVAO, framebufferVBO);
+    skyboxTexture = TextureUtils::LoadCubemap(skyboxFaces);
+    ShaderSystem::SetStaticUniforms(sceneShaders, framebufferVAO, framebufferVBO, skyboxVAO, skyboxVBO);
 }
 
 void Game::Run() {
@@ -150,7 +154,7 @@ void Game::Render() {
         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
         glStencilMask(0x00);
 
-        RenderSystem::RenderScene(registry, sceneShaders);
+        RenderSystem::RenderScene(registry, sceneShaders, skyboxVAO, skyboxTexture);
 
         // disable depth test for crosshair
         glDisable(GL_DEPTH_TEST);
@@ -169,7 +173,7 @@ void Game::Render() {
         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
         glStencilMask(0x00);
 
-        RenderSystem::RenderScene(registry, sceneShaders);
+        RenderSystem::RenderScene(registry, sceneShaders, skyboxVAO, skyboxTexture);
 
         // reset stencil opeitons to default for proper next iteration and stencil buffer clear
         glStencilFunc(GL_ALWAYS, 1, 0xFF);
