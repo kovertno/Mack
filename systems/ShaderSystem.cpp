@@ -15,12 +15,31 @@ void ShaderSystem::SetDirectionalLightUniforms(Shader* shader) {
     shader->Use();
 
     shader->SetVec3("dirLight.direction", 0.0f, -2.0f, -3.0f);
-    shader->SetVec3("dirLight.ambient", 0.85f, 0.85f, 0.85f);
-    shader->SetVec3("dirLight.diffuse", 0.65f, 0.65f, 0.65f);
-    shader->SetVec3("dirLight.specular", 0.4f, 0.4f, 0.4f);
+    shader->SetVec3("dirLight.ambient", 0.1f, 0.1f, 0.2f);
+    shader->SetVec3("dirLight.diffuse", 0.16f, 0.16f, 0.32f);
+    shader->SetVec3("dirLight.specular", 0.1f, 0.1f, 0.2f);
 }
 
-void ShaderSystem::SetBoxStaticUniforms(Shader* shader) {
+void ShaderSystem::SetSpotLightStaticUniforms(Shader* shader) {
+    shader->Use();
+
+    shader->SetVec3("spotLight.ambient", 0.1f, 0.1f, 0.1f);
+    shader->SetVec3("spotLight.diffuse", 0.3f, 0.3f, 0.3f);
+    shader->SetVec3("spotLight.specular", 0.1f, 0.1f, 0.1f);
+    shader->SetFloat("spotLight.cutOff", cos(glm::radians(12.5f)));
+    shader->SetFloat("spotLight.outCutOff", cos(glm::radians(17.5f)));
+
+    shader->SetBool("useSpotLight", true);
+}
+
+void ShaderSystem::SetSpotLightDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera) {
+    shader->Use();
+
+    shader->SetVec3("spotLight.position", camera->Position);
+    shader->SetVec3("spotLight.direction", camera->Front);
+}
+
+void ShaderSystem::SetCubeShaderStaticUniforms(Shader* shader) {
     shader->Use();
 
     glm::mat4 projection = glm::mat4(1.0f);
@@ -28,7 +47,7 @@ void ShaderSystem::SetBoxStaticUniforms(Shader* shader) {
     shader->SetMat4("projection", projection);
 }
 
-void ShaderSystem::SetBoxDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera) {
+void ShaderSystem::SetCubeShaderDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera) {
     shader->Use();
 
     shader->SetMat4("view", camera->GetViewMatrix());
@@ -36,7 +55,7 @@ void ShaderSystem::SetBoxDynamicUniforms(Shader* shader, std::unique_ptr<Camera>
     shader->SetVec3("viewPos", camera->Position);
 }
 
-void ShaderSystem::SetCrosshairStaticUniforms(Shader* shader) {
+void ShaderSystem::SetCrosshairShaderStaticUniforms(Shader* shader) {
     shader->Use();
 
     glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(Game::SCR_WIDTH), 0.0f, static_cast<float>(Game::SCR_HEIGHT));
@@ -48,7 +67,7 @@ void ShaderSystem::SetCrosshairStaticUniforms(Shader* shader) {
     shader->SetMat4("model", model);
 }
 
-void ShaderSystem::SetGrassStaticUniforms(Shader* shader) {
+void ShaderSystem::SetGrassShaderStaticUniforms(Shader* shader) {
     shader->Use();
 
     glm::mat4 projection = glm::mat4(1.0f);
@@ -56,22 +75,7 @@ void ShaderSystem::SetGrassStaticUniforms(Shader* shader) {
     shader->SetMat4("projection", projection);
 }
 
-void ShaderSystem::SetGrassDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera) {
-    shader->Use();
-
-    shader->SetMat4("view", camera->GetViewMatrix());
-}
-
-
-void ShaderSystem::SetTreeStaticUniforms(Shader* shader) {
-    shader->Use();
-
-    glm::mat4 projection = glm::mat4(1.0f);
-    projection = glm::perspective(glm::radians(45.0f), static_cast<float>(Game::SCR_WIDTH) / static_cast<float>(Game::SCR_HEIGHT), 0.1f, 100.0f);
-    shader->SetMat4("projection", projection);
-}
-
-void ShaderSystem::SetTreeDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera) {
+void ShaderSystem::SetGrassShaderDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera) {
     shader->Use();
 
     shader->SetMat4("view", camera->GetViewMatrix());
@@ -79,7 +83,7 @@ void ShaderSystem::SetTreeDynamicUniforms(Shader* shader, std::unique_ptr<Camera
 }
 
 
-void ShaderSystem::SetTrunkStaticUniforms(Shader* shader) {
+void ShaderSystem::SetModelShaderStaticUniforms(Shader* shader) {
     shader->Use();
 
     glm::mat4 projection = glm::mat4(1.0f);
@@ -87,59 +91,14 @@ void ShaderSystem::SetTrunkStaticUniforms(Shader* shader) {
     shader->SetMat4("projection", projection);
 }
 
-void ShaderSystem::SetTrunkDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera) {
+void ShaderSystem::SetModelShaderDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera) {
     shader->Use();
 
-    shader->SetVec3("viewPos", camera->Position);
     shader->SetMat4("view", camera->GetViewMatrix());
-}
-
-void ShaderSystem::SetRockStaticUniforms(Shader* shader) {
-    shader->Use();
-
-    glm::mat4 projection = glm::mat4(1.0f);
-    projection = glm::perspective(glm::radians(45.0f), static_cast<float>(Game::SCR_WIDTH) / static_cast<float>(Game::SCR_HEIGHT), 0.1f, 100.0f);
-    shader->SetMat4("projection", projection);
-}
-
-void ShaderSystem::SetRockDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera) {
-    shader->Use();
-
     shader->SetVec3("viewPos", camera->Position);
-    shader->SetMat4("view", camera->GetViewMatrix());
 }
 
-void ShaderSystem::SetBushStaticUniforms(Shader* shader) {
-    shader->Use();
-
-    glm::mat4 projection = glm::mat4(1.0f);
-    projection = glm::perspective(glm::radians(45.0f), static_cast<float>(Game::SCR_WIDTH) / static_cast<float>(Game::SCR_HEIGHT), 0.1f, 100.0f);
-    shader->SetMat4("projection", projection);
-}
-
-void ShaderSystem::SetBushDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera) {
-    shader->Use();
-
-    shader->SetVec3("viewPos", camera->Position);
-    shader->SetMat4("view", camera->GetViewMatrix());
-}
-
-void ShaderSystem::SetMushroomStaticUniforms(Shader* shader) {
-    shader->Use();
-
-    glm::mat4 projection = glm::mat4(1.0f);
-    projection = glm::perspective(glm::radians(45.0f), static_cast<float>(Game::SCR_WIDTH) / static_cast<float>(Game::SCR_HEIGHT), 0.1f, 100.0f);
-    shader->SetMat4("projection", projection);
-}
-
-void ShaderSystem::SetMushroomDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera) {
-    shader->Use();
-
-    shader->SetVec3("viewPos", camera->Position);
-    shader->SetMat4("view", camera->GetViewMatrix());
-}
-
-void ShaderSystem::SetOutlineStaticUniforms(Shader* shader) {
+void ShaderSystem::SetOutlineShaderStaticUniforms(Shader* shader) {
 
     glm::mat4 projection = glm::mat4(1.0f);
     projection = glm::perspective(glm::radians(45.0f), static_cast<float>(Game::SCR_WIDTH) / static_cast<float>(Game::SCR_HEIGHT), 0.1f, 100.0f);
@@ -149,7 +108,7 @@ void ShaderSystem::SetOutlineStaticUniforms(Shader* shader) {
     shader->SetFloat("scale", 0.015f);
 }
 
-void ShaderSystem::SetOutlineDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera) {
+void ShaderSystem::SetOutlineShaderDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera) {
     shader->Use();
     shader->SetMat4("view", camera->GetViewMatrix());
 }
@@ -259,28 +218,27 @@ void ShaderSystem::SetSkyboxDynamicUniforms(Shader* shader, std::unique_ptr<Came
 void ShaderSystem::SetStaticUniforms(SceneShaders& sceneShaders, unsigned int& framebufferVAO, unsigned int& framebufferVBO, unsigned int& skyboxVAO, unsigned int& skyboxVBO) {
     ShaderSystem::SetDirectionalLightUniforms(sceneShaders.cubeShader);
     ShaderSystem::SetDirectionalLightUniforms(sceneShaders.modelShader);
-    ShaderSystem::SetCrosshairStaticUniforms(sceneShaders.crosshairShader);
-    ShaderSystem::SetBoxStaticUniforms(sceneShaders.cubeShader);
-    ShaderSystem::SetGrassStaticUniforms(sceneShaders.grassShader);
-    ShaderSystem::SetTreeStaticUniforms(sceneShaders.modelShader);
-    ShaderSystem::SetTrunkStaticUniforms(sceneShaders.modelShader);
-    ShaderSystem::SetRockStaticUniforms(sceneShaders.modelShader);
-    ShaderSystem::SetBushStaticUniforms(sceneShaders.modelShader);
-    ShaderSystem::SetMushroomStaticUniforms(sceneShaders.modelShader);
-    ShaderSystem::SetOutlineStaticUniforms(sceneShaders.outlineShader);
+    ShaderSystem::SetDirectionalLightUniforms(sceneShaders.grassShader);
+    ShaderSystem::SetSpotLightStaticUniforms(sceneShaders.cubeShader);
+    ShaderSystem::SetSpotLightStaticUniforms(sceneShaders.grassShader);
+    ShaderSystem::SetSpotLightStaticUniforms(sceneShaders.modelShader);
+    ShaderSystem::SetCrosshairShaderStaticUniforms(sceneShaders.crosshairShader);
+    ShaderSystem::SetCubeShaderStaticUniforms(sceneShaders.cubeShader);
+    ShaderSystem::SetGrassShaderStaticUniforms(sceneShaders.grassShader);
+    ShaderSystem::SetModelShaderStaticUniforms(sceneShaders.modelShader);
+    ShaderSystem::SetOutlineShaderStaticUniforms(sceneShaders.outlineShader);
     ShaderSystem::SetPostProcessing(sceneShaders.postProcessingShader, framebufferVAO, framebufferVBO);
     ShaderSystem::SetSkyboxVAO(skyboxVAO, skyboxVBO);
     ShaderSystem::SetSkyboxStaticUnifoms(sceneShaders.skyboxShader);
 }
 
 void ShaderSystem::SetDynamicUniforms(SceneShaders& sceneShaders, std::unique_ptr<Camera>& camera) {
-    ShaderSystem::SetBoxDynamicUniforms(sceneShaders.cubeShader, camera);
-    ShaderSystem::SetGrassDynamicUniforms(sceneShaders.grassShader, camera);
-    ShaderSystem::SetTreeDynamicUniforms(sceneShaders.modelShader, camera);
-    ShaderSystem::SetTrunkDynamicUniforms(sceneShaders.modelShader, camera);
-    ShaderSystem::SetRockDynamicUniforms(sceneShaders.modelShader, camera);
-    ShaderSystem::SetBushDynamicUniforms(sceneShaders.modelShader, camera);
-    ShaderSystem::SetMushroomDynamicUniforms(sceneShaders.modelShader, camera);
-    ShaderSystem::SetOutlineDynamicUniforms(sceneShaders.outlineShader, camera);
+    ShaderSystem::SetSpotLightDynamicUniforms(sceneShaders.cubeShader, camera);
+    ShaderSystem::SetSpotLightDynamicUniforms(sceneShaders.grassShader, camera);
+    ShaderSystem::SetSpotLightDynamicUniforms(sceneShaders.modelShader, camera);
+    ShaderSystem::SetCubeShaderDynamicUniforms(sceneShaders.cubeShader, camera);
+    ShaderSystem::SetGrassShaderDynamicUniforms(sceneShaders.grassShader, camera);
+    ShaderSystem::SetModelShaderDynamicUniforms(sceneShaders.modelShader, camera);
+    ShaderSystem::SetOutlineShaderDynamicUniforms(sceneShaders.outlineShader, camera);
     ShaderSystem::SetSkyboxDynamicUniforms(sceneShaders.skyboxShader, camera);
 }

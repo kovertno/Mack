@@ -36,6 +36,7 @@ public:
 	void CreateRockModel();
 	void CreateBushModel();
 	void CreateMushroomModel();
+	void CreateFlashlightModel();
 };
 
 #endif
