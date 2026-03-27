@@ -11,7 +11,7 @@ MACK is a modular 3D game engine that is being developed with **C++20** and **Op
 * **Asset Pipeline**: Integrated **Assimp** for complex 3D model loading and scene hierarchy parsing.
 
 
-https://github.com/user-attachments/assets/f618526b-8feb-4577-915f-84067a3b671c
+https://github.com/user-attachments/assets/7ab4aced-3208-4b79-87bc-2447bf33ef25
 
 
 ## 🛠 Tech Stack
