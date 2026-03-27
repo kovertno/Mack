@@ -21,6 +21,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <iostream>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -263,8 +265,8 @@ void RenderSystem::RenderScene(entt::registry& registry, SceneShaders& sceneShad
     RenderSystem::RenderMushroom(registry, sceneShaders.modelShader, sceneShaders.outlineShader);
     glDisable(GL_CULL_FACE);
     RenderSystem::RenderGrass(registry, sceneShaders.grassShader);
-    RenderSystem::RenderFloor(registry, sceneShaders.cubeShader);
     RenderSystem::RenderBoxes(registry, sceneShaders.cubeShader, sceneShaders.outlineShader);
+    RenderSystem::RenderFloor(registry, sceneShaders.cubeShader);
     glDepthFunc(GL_LEQUAL);
     RenderSystem::RenderSkybox(sceneShaders.skyboxShader, skyboxVAO, skyboxTexture);
     glDepthFunc(GL_LESS);
