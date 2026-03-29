@@ -113,127 +113,6 @@ void RenderSystem::RenderGrass(entt::registry& registry, Shader* shader) {
     }
 }
 
-
-void RenderSystem::RenderTree(entt::registry& registry, Shader* modelShader, Shader* outlineShader) {
-    auto view = registry.view<TransformComponent, ModelMeshComponent, TreeModelComponent, OutlineComponent>();
-    for (auto entity : view) {
-        auto& transform = view.get<TransformComponent>(entity);
-        auto& mesh = view.get<ModelMeshComponent>(entity);
-
-        glStencilFunc(GL_ALWAYS, 1, 0xFF);
-        glStencilMask(0xFF);
-        glClear(GL_STENCIL_BUFFER_BIT);
-
-        modelShader->Use();
-        modelShader->SetMat4("model", transform.GetModelMatrix());
-        modelShader->SetFloat("material.shininess", 32.0f);
-        mesh.model.Draw(modelShader);
-
-        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-        glStencilMask(0x00);
-
-        outlineShader->Use();
-        outlineShader->SetMat4("model", transform.GetModelMatrix());
-        mesh.model.Draw(outlineShader);
-    }
-}
-
-void RenderSystem::RenderTrunk(entt::registry& registry, Shader* modelShader, Shader* outlineShader) {
-    auto view = registry.view<TransformComponent, ModelMeshComponent, TrunkModelComponent>();
-    for (auto entity : view) {
-        auto& transform = view.get<TransformComponent>(entity);
-        auto& mesh = view.get<ModelMeshComponent>(entity);
-
-        glStencilFunc(GL_ALWAYS, 1, 0xFF);
-        glStencilMask(0xFF);
-        glClear(GL_STENCIL_BUFFER_BIT);
-
-        modelShader->Use();
-        modelShader->SetMat4("model", transform.GetModelMatrix());
-        modelShader->SetFloat("material.shininess", 32.0f);
-        mesh.model.Draw(modelShader);
-
-        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-        glStencilMask(0x00);
-
-        outlineShader->Use();
-        outlineShader->SetMat4("model", transform.GetModelMatrix());
-        mesh.model.Draw(outlineShader);
-    }
-}
-
-void RenderSystem::RenderRock(entt::registry& registry, Shader* modelShader, Shader* outlineShader) {
-    auto view = registry.view<TransformComponent, ModelMeshComponent, RockModelComponent>();
-    for (auto entity : view) {
-        auto& transform = view.get<TransformComponent>(entity);
-        auto& mesh = view.get<ModelMeshComponent>(entity);
-
-        glStencilFunc(GL_ALWAYS, 1, 0xFF);
-        glStencilMask(0xFF);
-        glClear(GL_STENCIL_BUFFER_BIT);
-
-        modelShader->Use();
-        modelShader->SetMat4("model", transform.GetModelMatrix());
-        modelShader->SetFloat("material.shininess", 32.0f);
-        mesh.model.Draw(modelShader);
-
-        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-        glStencilMask(0x00);
-
-        outlineShader->Use();
-        outlineShader->SetMat4("model", transform.GetModelMatrix());
-        mesh.model.Draw(outlineShader);
-    }
-}
-
-void RenderSystem::RenderBush(entt::registry& registry, Shader* modelShader, Shader* outlineShader) {
-    auto view = registry.view<TransformComponent, ModelMeshComponent, BushModelComponent>();
-    for (auto entity : view) {
-        auto& transform = view.get<TransformComponent>(entity);
-        auto& mesh = view.get<ModelMeshComponent>(entity);
-
-        glStencilFunc(GL_ALWAYS, 1, 0xFF);
-        glStencilMask(0xFF);
-        glClear(GL_STENCIL_BUFFER_BIT);
-
-        modelShader->Use();
-        modelShader->SetMat4("model", transform.GetModelMatrix());
-        modelShader->SetFloat("material.shininess", 32.0f);
-        mesh.model.Draw(modelShader);
-
-        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-        glStencilMask(0x00);
-
-        outlineShader->Use();
-        outlineShader->SetMat4("model", transform.GetModelMatrix());
-        mesh.model.Draw(outlineShader);
-    }
-}
-
-void RenderSystem::RenderMushroom(entt::registry& registry, Shader* modelShader, Shader* outlineShader) {
-    auto view = registry.view<TransformComponent, ModelMeshComponent, MushroomModelComponent>();
-    for (auto entity : view) {
-        auto& transform = view.get<TransformComponent>(entity);
-        auto& mesh = view.get<ModelMeshComponent>(entity);
-
-        glStencilFunc(GL_ALWAYS, 1, 0xFF);
-        glStencilMask(0xFF);
-        glClear(GL_STENCIL_BUFFER_BIT);
-
-        modelShader->Use();
-        modelShader->SetMat4("model", transform.GetModelMatrix());
-        modelShader->SetFloat("material.shininess", 32.0f);
-        mesh.model.Draw(modelShader);
-
-        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-        glStencilMask(0x00);
-
-        outlineShader->Use();
-        outlineShader->SetMat4("model", transform.GetModelMatrix());
-        mesh.model.Draw(outlineShader);
-    }
-}
-
 void RenderSystem::RenderPostProcessing(Shader* shader, unsigned int VAO, unsigned int textureAttachment) {
     shader->Use();
 
@@ -278,11 +157,11 @@ void RenderSystem::RenderFlashlight(entt::registry& registry, Shader* shader, st
 void RenderSystem::RenderScene(entt::registry& registry, SceneShaders& sceneShaders, unsigned int skyboxVAO, unsigned int skyboxTexture) {
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
-    RenderSystem::RenderTree(registry, sceneShaders.modelShader, sceneShaders.outlineShader);
-    RenderSystem::RenderTrunk(registry, sceneShaders.modelShader, sceneShaders.outlineShader);
-    RenderSystem::RenderRock(registry, sceneShaders.modelShader, sceneShaders.outlineShader);
-    RenderSystem::RenderBush(registry, sceneShaders.modelShader, sceneShaders.outlineShader);
-    RenderSystem::RenderMushroom(registry, sceneShaders.modelShader, sceneShaders.outlineShader);
+    RenderSystem::RenderSceneModel<TreeModelComponent>(registry, sceneShaders.modelShader, sceneShaders.outlineShader);
+    RenderSystem::RenderSceneModel<TrunkModelComponent>(registry, sceneShaders.modelShader, sceneShaders.outlineShader);
+    RenderSystem::RenderSceneModel<RockModelComponent>(registry, sceneShaders.modelShader, sceneShaders.outlineShader);
+    RenderSystem::RenderSceneModel<BushModelComponent>(registry, sceneShaders.modelShader, sceneShaders.outlineShader);
+    RenderSystem::RenderSceneModel<MushroomModelComponent>(registry, sceneShaders.modelShader, sceneShaders.outlineShader);
     glDisable(GL_CULL_FACE);
     RenderSystem::RenderGrass(registry, sceneShaders.grassShader);
     RenderSystem::RenderBoxes(registry, sceneShaders.cubeShader, sceneShaders.outlineShader);

@@ -38,15 +38,35 @@ public:
 	static void RenderFloor(entt::registry& registry, Shader* shader);
 	static void RenderCrosshair(entt::registry& registry, Shader* shader);
 	static void RenderGrass(entt::registry& registry, Shader* shader);
-	static void RenderTree(entt::registry& registry, Shader* modelShader, Shader* outlineShader);
-	static void RenderTrunk(entt::registry& registry, Shader* modelShader, Shader* outlineShader);
-	static void RenderRock(entt::registry& registry, Shader* modelShader, Shader* outlineShader);
-	static void RenderBush(entt::registry& registry, Shader* modelShader, Shader* outlineShader);
-	static void RenderMushroom(entt::registry& registry, Shader* modelShader, Shader* outlineShader);
 	static void RenderPostProcessing(Shader* shader, unsigned int VAO, unsigned int textureAttachment);
 	static void RenderSkybox(Shader* shader, unsigned int VAO, unsigned int skyboxTexture);
 	static void RenderFlashlight(entt::registry& registry, Shader* shader, std::unique_ptr<Camera>& camera);
 	static void RenderScene(entt::registry& registry, SceneShaders& sceneShaders, unsigned int skyboxVAO, unsigned int skyboxTexture);
+
+	template<typename TagComponent>
+	static void RenderSceneModel(entt::registry& registry, Shader* modelShader, Shader* outlineShader) {
+		auto view = registry.view<TransformComponent, ModelMeshComponent, TagComponent>();
+		for (auto entity : view) {
+			auto& transform = view.get<TransformComponent>(entity);
+			auto& mesh = view.get<ModelMeshComponent>(entity);
+
+			glStencilFunc(GL_ALWAYS, 1, 0xFF);
+			glStencilMask(0xFF);
+			glClear(GL_STENCIL_BUFFER_BIT);
+
+			modelShader->Use();
+			modelShader->SetMat4("model", transform.GetModelMatrix());
+			modelShader->SetFloat("material.shininess", 32.0f);
+			mesh.model.Draw(modelShader);
+
+			glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+			glStencilMask(0x00);
+
+			outlineShader->Use();
+			outlineShader->SetMat4("model", transform.GetModelMatrix());
+			mesh.model.Draw(outlineShader);
+		}
+	}
 };
 
 #endif
