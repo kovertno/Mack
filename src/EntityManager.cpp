@@ -17,7 +17,9 @@
 #include "BushModelComponent.hpp"
 #include "MushroomModelComponent.hpp"
 #include "OutlineComponent.hpp"
+#include "FlashlightModelComponent.hpp"
 #include "Model.hpp"
+#include "Camera.hpp"
 
 #include <entt/entt.hpp>
 #include <glm/glm.hpp>
@@ -323,11 +325,12 @@ void EntityManager::CreateMushroomModel() {
     }
 }
 
-void EntityManager::CreateFlashlightModel() {
+void EntityManager::CreateFlashlightModel(std::unique_ptr<Camera>& camera) {
     entt::entity flashlightEntity = m_registry.create();
-    auto& mushroomModel = m_registry.emplace<ModelMeshComponent>(flashlightEntity);
-
-
+    m_registry.emplace<TransformComponent>(flashlightEntity);
+    auto& flashlightModel = m_registry.emplace<ModelMeshComponent>(flashlightEntity);
+    flashlightModel.model.LoadModel("resources/models/flashlight/model.obj");
+    m_registry.emplace<FlashlightModelComponent>(flashlightEntity);
 }
 
 bool EntityManager::IsPositionTaken(glm::vec3 position) {

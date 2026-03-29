@@ -53,6 +53,7 @@ public:
 	glm::mat4 GetViewMatrix() const;
 	void KeyboardMovement(Camera_Movement direction, float deltaTime);
 	void MouseMovement(float xoffset, float yoffset);
+	void Orbit(float radius, float angle, float deltaTime);
 };
 
 #endif

@@ -70,6 +70,8 @@ void Game::Init() {
     entityManager->CreateBushModel();
     // mushroom
     entityManager->CreateMushroomModel();
+    // flashlight
+    entityManager->CreateFlashlightModel(camera);
 
     framebuffer = std::make_unique<Framebuffer>();
     skyboxTexture = TextureUtils::LoadCubemap(skyboxFaces);
@@ -105,12 +107,8 @@ void Game::ProcessInput() {
         static float radius = 40.0f; // taken from entity manager -> floor
         static float angle = 0.0f;
         static constexpr float speed = 0.30f;
-        float x = 0.0f + radius * cos(angle);
-        float z = 0.0f + radius * sin(angle);
-        camera->Position = glm::vec3(x, 8.0f, z);
-        camera->Front = glm::normalize(0.0f - camera->Position);
+        camera->Orbit(radius, angle, deltaTime);
         angle += speed * deltaTime;
-
     }
 
     static bool qPressed = false;
@@ -155,10 +153,19 @@ void Game::Render() {
         glStencilMask(0x00);
 
         RenderSystem::RenderScene(registry, sceneShaders, skyboxVAO, skyboxTexture);
-
+        glDisable(GL_STENCIL_TEST);
+        RenderSystem::RenderFlashlight(registry, modelShader.get(), camera);
+        glEnable(GL_STENCIL_TEST);
         // disable depth test for crosshair
         glDisable(GL_DEPTH_TEST);
+        glDisable(GL_STENCIL_TEST);
         RenderSystem::RenderCrosshair(registry, crosshairShader.get()); // render crosshair since we need it with depth test disabled
+
+        // reset stencil opeitons to default for proper next iteration and stencil buffer clear
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glStencilMask(0xFF);
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_STENCIL_TEST);
     }
     else {
         framebuffer->Bind();
@@ -174,6 +181,9 @@ void Game::Render() {
         glStencilMask(0x00);
 
         RenderSystem::RenderScene(registry, sceneShaders, skyboxVAO, skyboxTexture);
+        glDisable(GL_STENCIL_TEST);
+        RenderSystem::RenderFlashlight(registry, modelShader.get(), camera);
+        glEnable(GL_STENCIL_TEST);
 
         // reset stencil opeitons to default for proper next iteration and stencil buffer clear
         glStencilFunc(GL_ALWAYS, 1, 0xFF);
@@ -185,6 +195,7 @@ void Game::Render() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // disable depth
         glDisable(GL_DEPTH_TEST);
+        glDisable(GL_STENCIL_TEST);
         RenderSystem::RenderPostProcessing(postProcessingShader.get(), framebufferVAO, framebuffer->GetTexture());   
         RenderSystem::RenderCrosshair(registry, crosshairShader.get()); 
 
@@ -192,6 +203,7 @@ void Game::Render() {
         glStencilFunc(GL_ALWAYS, 1, 0xFF);
         glStencilMask(0xFF);
         glEnable(GL_DEPTH_TEST);
+        glEnable(GL_STENCIL_TEST);
     }
 }
 
