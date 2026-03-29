@@ -9,6 +9,7 @@
 #include "SceneShaders.hpp"
 
 #include "RenderSystem.h"
+#include "TerrainCollisionSystem.hpp"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -77,6 +78,7 @@ private:
 		"resources/textures/skybox/back.png"
 	};
 	unsigned int skyboxTexture;
+	TerrainCollisionSystem terrainCollisionSystem;
 
 public:
 	entt::registry registry;

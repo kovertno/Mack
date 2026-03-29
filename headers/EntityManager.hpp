@@ -37,6 +37,7 @@ public:
 	void CreateRockModel();
 	void CreateBushModel();
 	void CreateMushroomModel();
+	void CreateModelMap();
 	void CreateFlashlightModel(std::unique_ptr<Camera>& camera);
 };
 

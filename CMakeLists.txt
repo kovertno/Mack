@@ -17,7 +17,7 @@ find_package(glm CONFIG REQUIRED)
 find_package(assimp CONFIG REQUIRED)
 
 # Define the executable and its source files
-add_executable(Mack ${SOURCES})
+add_executable(Mack ${SOURCES} "systems/TerrainCollisionSystem.cpp")
 
 # Copy resources to build directory
 add_custom_command(TARGET Mack POST_BUILD

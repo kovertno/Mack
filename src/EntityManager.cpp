@@ -18,6 +18,7 @@
 #include "MushroomModelComponent.hpp"
 #include "OutlineComponent.hpp"
 #include "FlashlightModelComponent.hpp"
+#include "HeightfieldColliderComponent.hpp"
 #include "Model.hpp"
 #include "Camera.hpp"
 
@@ -279,6 +280,21 @@ void EntityManager::CreateBushModel() {
         m_registry.emplace<BushModelComponent>(bushEntity);
         m_registry.emplace<OutlineComponent>(bushEntity);
     }
+}
+
+void EntityManager::CreateModelMap() {
+    entt::entity mapEntity = m_registry.create();
+
+    auto& mapTransform = m_registry.emplace<TransformComponent>(mapEntity);
+    mapTransform.position = glm::vec3(0.0f, 0.0f, 10.0f);
+    mapTransform.scale = glm::vec3(10.0f, 10.0f, 10.0f);
+    mapTransform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+
+    auto& mapModel = m_registry.emplace<ModelMeshComponent>(mapEntity);
+    mapModel.model.LoadModel("resources/models/low_poly_trees_grass_and_rocks/tree_round.gltf");
+
+
+    m_registry.emplace<HeightfieldColliderComponent>(mapEntity);
 }
 
 void EntityManager::CreateMushroomModel() {

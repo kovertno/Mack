@@ -38,6 +38,11 @@ public:
 
 	// loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
 	void LoadModel(const std::string& path);
+
+	//retrive all the vertex data
+	const std::vector<ModelMesh>& GetMeshes() const {
+		return meshes;
+	}
 };
 
 #endif

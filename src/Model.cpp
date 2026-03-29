@@ -38,6 +38,8 @@ void Model::LoadModel(const std::string& path) {
 
 	// process ASSIMP's root node recursively
 	ProcessNode(scene->mRootNode, scene);
+
+	
 }
 
 void Model::ProcessNode(aiNode* node, const aiScene* scene) {

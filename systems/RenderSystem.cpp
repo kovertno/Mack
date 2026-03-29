@@ -13,6 +13,7 @@
 #include "BushModelComponent.hpp"
 #include "MushroomModelComponent.hpp"
 #include "OutlineComponent.hpp"
+#include "HeightfieldColliderComponent.hpp"
 #include "FlashlightModelComponent.hpp"
 #include "Framebuffer.hpp"
 #include "SceneShaders.hpp"
@@ -283,6 +284,7 @@ void RenderSystem::RenderScene(entt::registry& registry, SceneShaders& sceneShad
     RenderSystem::RenderRock(registry, sceneShaders.modelShader, sceneShaders.outlineShader);
     RenderSystem::RenderBush(registry, sceneShaders.modelShader, sceneShaders.outlineShader);
     RenderSystem::RenderMushroom(registry, sceneShaders.modelShader, sceneShaders.outlineShader);
+    RenderSystem::renderMapModel(registry, sceneShaders.modelShader, sceneShaders.outlineShader);
     glDisable(GL_CULL_FACE);
     RenderSystem::RenderGrass(registry, sceneShaders.grassShader);
     RenderSystem::RenderBoxes(registry, sceneShaders.cubeShader, sceneShaders.outlineShader);
@@ -290,4 +292,28 @@ void RenderSystem::RenderScene(entt::registry& registry, SceneShaders& sceneShad
     glDepthFunc(GL_LEQUAL);
     RenderSystem::RenderSkybox(sceneShaders.skyboxShader, skyboxVAO, skyboxTexture);
     glDepthFunc(GL_LESS);
+}
+
+void RenderSystem::renderMapModel(entt::registry& registry, Shader* modelShader, Shader* outlineShader) {
+    auto view = registry.view<TransformComponent, ModelMeshComponent, HeightfieldColliderComponent>();
+    for (auto entity : view) {
+        auto& transform = view.get<TransformComponent>(entity);
+        auto& mesh = view.get<ModelMeshComponent>(entity);
+
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glStencilMask(0xFF);
+        glClear(GL_STENCIL_BUFFER_BIT);
+
+        modelShader->Use();
+        modelShader->SetMat4("model", transform.GetModelMatrix());
+        modelShader->SetFloat("material.shininess", 32.0f);
+        mesh.model.Draw(modelShader);
+
+        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+        glStencilMask(0x00);
+
+        outlineShader->Use();
+        outlineShader->SetMat4("model", transform.GetModelMatrix());
+        mesh.model.Draw(outlineShader);
+    }
 }

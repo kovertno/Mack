@@ -47,6 +47,7 @@ public:
 	static void RenderSkybox(Shader* shader, unsigned int VAO, unsigned int skyboxTexture);
 	static void RenderFlashlight(entt::registry& registry, Shader* shader, std::unique_ptr<Camera>& camera);
 	static void RenderScene(entt::registry& registry, SceneShaders& sceneShaders, unsigned int skyboxVAO, unsigned int skyboxTexture);
+	static void RenderSystem::renderMapModel(entt::registry& registry, Shader* modelShader, Shader* outlineShader);
 };
 
 #endif

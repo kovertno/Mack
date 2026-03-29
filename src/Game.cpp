@@ -16,6 +16,7 @@
 #include "KnockBackSystem.hpp"
 #include "ShaderSystem.h"
 
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -72,6 +73,9 @@ void Game::Init() {
     entityManager->CreateMushroomModel();
     // flashlight
     entityManager->CreateFlashlightModel(camera);
+    // Model map
+	entityManager->CreateModelMap();
+	terrainCollisionSystem.bake(registry);
 
     framebuffer = std::make_unique<Framebuffer>();
     skyboxTexture = TextureUtils::LoadCubemap(skyboxFaces);
@@ -136,6 +140,8 @@ void Game::Update() {
     lastFrame = currentFrame;
     PhysicsSystem::update(registry, deltaTime);
     CollisionSystem::update(registry, deltaTime);
+    terrainCollisionSystem.update(registry, deltaTime);
+	terrainCollisionSystem.updateCamera(*camera, registry);
 }
 
 void Game::Render() {
