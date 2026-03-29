@@ -33,6 +33,24 @@ void Camera::MouseMovement(float xoffset, float yoffset) {
 	UpdateCameraVectors();
 }
 
+void Camera::Orbit(float radius, float angle, float deltaTime) {
+	float x = 0.0f + radius * cos(angle);
+	float z = 0.0f + radius * sin(angle);
+	Position = glm::vec3(x, 8.0f, z);
+	Front = glm::normalize(0.0f - Position);
+	Right = glm::normalize(glm::cross(Front, WorldUp));
+	Up = glm::normalize(glm::cross(Right, Front));
+
+	/* 
+	CALCULATED BY DERIVING FROM THIS:
+	front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+	front.y = sin(glm::radians(Pitch));
+	front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+	*/
+	Yaw = glm::degrees(atan2(Front.z, Front.x));
+	Pitch = glm::degrees(asin(Front.y));
+}
+
 void Camera::UpdateCameraVectors() {
 	glm::vec3 front;
 	// calculate the new front vector

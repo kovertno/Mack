@@ -12,6 +12,7 @@
 #include "RockModelComponent.hpp"
 #include "BushModelComponent.hpp"
 #include "MushroomModelComponent.hpp"
+#include "Camera.hpp"
 
 #include <entt/entt.hpp>
 
@@ -36,7 +37,7 @@ public:
 	void CreateRockModel();
 	void CreateBushModel();
 	void CreateMushroomModel();
-	void CreateFlashlightModel();
+	void CreateFlashlightModel(std::unique_ptr<Camera>& camera);
 };
 
 #endif
