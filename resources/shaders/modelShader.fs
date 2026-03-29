@@ -99,7 +99,7 @@ vec3 CalcSpotLight(vec3 normal, vec3 viewDir) {
 	float spec = pow(theta, material.shininess);
 
 	vec3 ambient = vec3(0.0);
-	vec3 diffuse = vec3(0.05);
+	vec3 diffuse = vec3(0.07);
 	vec3 specular = vec3(0.0);
 
 	if(diffNum > 0) {

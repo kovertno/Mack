@@ -13,6 +13,7 @@
 #include "BushModelComponent.hpp"
 #include "MushroomModelComponent.hpp"
 #include "OutlineComponent.hpp"
+#include "FlashlightModelComponent.hpp"
 #include "Framebuffer.hpp"
 #include "SceneShaders.hpp"
 
@@ -28,7 +29,7 @@
 
 void RenderSystem::RenderBoxes(entt::registry& registry, Shader* cubeShader, Shader* outlineShader) {
     auto view1 = registry.view<TransformComponent, BoxMeshComponent, MaterialComponent, OutlineComponent>();
-    for (auto& entity : view1) {
+    for (auto entity : view1) {
         glStencilFunc(GL_ALWAYS, 1, 0xFF);
         glStencilMask(0xFF);
         glClear(GL_STENCIL_BUFFER_BIT);
@@ -100,7 +101,7 @@ void RenderSystem::RenderGrass(entt::registry& registry, Shader* shader) {
     shader->Use();
 
     auto view = registry.view<TransformComponent, GrassMeshComponent>();
-    for (auto& entity : view) {
+    for (auto entity : view) {
         auto& transform = view.get<TransformComponent>(entity);
         auto& mesh = view.get<GrassMeshComponent>(entity);
 
@@ -115,7 +116,7 @@ void RenderSystem::RenderGrass(entt::registry& registry, Shader* shader) {
 
 void RenderSystem::RenderTree(entt::registry& registry, Shader* modelShader, Shader* outlineShader) {
     auto view = registry.view<TransformComponent, ModelMeshComponent, TreeModelComponent, OutlineComponent>();
-    for (auto& entity : view) {
+    for (auto entity : view) {
         auto& transform = view.get<TransformComponent>(entity);
         auto& mesh = view.get<ModelMeshComponent>(entity);
 
@@ -139,7 +140,7 @@ void RenderSystem::RenderTree(entt::registry& registry, Shader* modelShader, Sha
 
 void RenderSystem::RenderTrunk(entt::registry& registry, Shader* modelShader, Shader* outlineShader) {
     auto view = registry.view<TransformComponent, ModelMeshComponent, TrunkModelComponent>();
-    for (auto& entity : view) {
+    for (auto entity : view) {
         auto& transform = view.get<TransformComponent>(entity);
         auto& mesh = view.get<ModelMeshComponent>(entity);
 
@@ -163,7 +164,7 @@ void RenderSystem::RenderTrunk(entt::registry& registry, Shader* modelShader, Sh
 
 void RenderSystem::RenderRock(entt::registry& registry, Shader* modelShader, Shader* outlineShader) {
     auto view = registry.view<TransformComponent, ModelMeshComponent, RockModelComponent>();
-    for (auto& entity : view) {
+    for (auto entity : view) {
         auto& transform = view.get<TransformComponent>(entity);
         auto& mesh = view.get<ModelMeshComponent>(entity);
 
@@ -187,7 +188,7 @@ void RenderSystem::RenderRock(entt::registry& registry, Shader* modelShader, Sha
 
 void RenderSystem::RenderBush(entt::registry& registry, Shader* modelShader, Shader* outlineShader) {
     auto view = registry.view<TransformComponent, ModelMeshComponent, BushModelComponent>();
-    for (auto& entity : view) {
+    for (auto entity : view) {
         auto& transform = view.get<TransformComponent>(entity);
         auto& mesh = view.get<ModelMeshComponent>(entity);
 
@@ -211,7 +212,7 @@ void RenderSystem::RenderBush(entt::registry& registry, Shader* modelShader, Sha
 
 void RenderSystem::RenderMushroom(entt::registry& registry, Shader* modelShader, Shader* outlineShader) {
     auto view = registry.view<TransformComponent, ModelMeshComponent, MushroomModelComponent>();
-    for (auto& entity : view) {
+    for (auto entity : view) {
         auto& transform = view.get<TransformComponent>(entity);
         auto& mesh = view.get<ModelMeshComponent>(entity);
 
@@ -253,6 +254,25 @@ void RenderSystem::RenderSkybox(Shader* shader, unsigned int VAO, unsigned int s
 
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
+}
+
+void RenderSystem::RenderFlashlight(entt::registry& registry, Shader* shader, std::unique_ptr<Camera>& camera) {
+    auto view = registry.view<TransformComponent, ModelMeshComponent, FlashlightModelComponent>();
+    auto entity = view.front();
+
+    auto& transform = view.get<TransformComponent>(entity);
+    auto& mesh = view.get<ModelMeshComponent>(entity);
+
+    glm::vec3 offset = glm::vec3(0.25f, 0.25f, 0.75f);
+    transform.position = camera->Position + camera->Right * offset.x - camera->Up * offset.y + camera->Front * offset.z;
+    transform.rotation = glm::vec3(0.0f, -camera->Yaw, camera->Pitch);
+    shader->Use();
+    shader->SetBool("useSpotLight", false);
+    shader->SetMat4("model", transform.GetModelMatrix());
+    shader->SetFloat("material.shininess", 32.0f);
+    mesh.model.Draw(shader);
+
+    shader->SetBool("useSpotLight", true);
 }
 
 void RenderSystem::RenderScene(entt::registry& registry, SceneShaders& sceneShaders, unsigned int skyboxVAO, unsigned int skyboxTexture) {

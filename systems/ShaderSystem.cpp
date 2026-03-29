@@ -26,7 +26,7 @@ void ShaderSystem::SetSpotLightStaticUniforms(Shader* shader) {
     shader->SetVec3("spotLight.ambient", 0.1f, 0.1f, 0.1f);
     shader->SetVec3("spotLight.diffuse", 0.3f, 0.3f, 0.3f);
     shader->SetVec3("spotLight.specular", 0.1f, 0.1f, 0.1f);
-    shader->SetFloat("spotLight.cutOff", cos(glm::radians(12.5f)));
+    shader->SetFloat("spotLight.cutOff", cos(glm::radians(11.0f)));
     shader->SetFloat("spotLight.outCutOff", cos(glm::radians(17.5f)));
 
     shader->SetBool("useSpotLight", true);
