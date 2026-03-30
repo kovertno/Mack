@@ -15,6 +15,7 @@
 #include "RayCastSystem.hpp"
 #include "KnockBackSystem.hpp"
 #include "ShaderSystem.h"
+#include "FireflySystem.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -147,7 +148,7 @@ void Game::ProcessInput() {
             settings.flip(FLASHLIGHT_ON);
             mousePressed = true;
         }
-
+        
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
             mousePressed = false;
     }
@@ -159,6 +160,7 @@ void Game::Update() {
     lastFrame = currentFrame;
     PhysicsSystem::update(registry, deltaTime);
     CollisionSystem::update(registry, deltaTime);
+    FireflySystem::Update(registry);
 }
 
 void Game::Render() {

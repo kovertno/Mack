@@ -349,22 +349,25 @@ void EntityManager::CreateFireflies() {
         do {
             float randomX = disX(gen);
             float randomZ = disZ(gen);
-            position = glm::vec3(randomX, 0.7f, randomZ);
+            position = glm::vec3(randomX, 1.0f, randomZ);
         } while (IsPositionTaken(position));
 
         fireflyPositions.push_back(position);
         takenPositions.push_back(position);
     }
 
+    std::uniform_real_distribution<float> offset(0.0f, 6.28f);
+
     for (auto& position : fireflyPositions) {
         entt::entity fireflyEntity = m_registry.create();
         auto& fireflyTransform = m_registry.emplace<TransformComponent>(fireflyEntity);
-        fireflyTransform.position = position;
-        fireflyTransform.scale = glm::vec3(0.05f, 0.05f, 0.05f);
+        fireflyTransform.scale = glm::vec3(0.04f, 0.04f, 0.04f);
 
         auto& fireflyModel = m_registry.emplace<ModelMeshComponent>(fireflyEntity);
         fireflyModel.model.LoadModel("resources/models/firefly/scene.gltf");
-        m_registry.emplace<FireflyModelComponent>(fireflyEntity);
+        auto& fireflyComponent = m_registry.emplace<FireflyModelComponent>(fireflyEntity);
+        fireflyComponent.startingPos = position;
+        fireflyComponent.offset = offset(gen);
     }
 }
 
