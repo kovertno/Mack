@@ -18,6 +18,7 @@
 #include "MushroomModelComponent.hpp"
 #include "OutlineComponent.hpp"
 #include "FlashlightModelComponent.hpp"
+#include "FireflyModelComponent.hpp"
 #include "Model.hpp"
 #include "Camera.hpp"
 
@@ -331,6 +332,40 @@ void EntityManager::CreateFlashlightModel(std::unique_ptr<Camera>& camera) {
     auto& flashlightModel = m_registry.emplace<ModelMeshComponent>(flashlightEntity);
     flashlightModel.model.LoadModel("resources/models/flashlight/model.obj");
     m_registry.emplace<FlashlightModelComponent>(flashlightEntity);
+}
+
+void EntityManager::CreateFireflies() {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> disX(-29.0f, 29.0f);
+    std::uniform_real_distribution<float> disZ(-29.0f, 29.0f);
+
+    constexpr uint16_t numOfFireflies = 5;
+
+    std::vector<glm::vec3> fireflyPositions{};
+
+    for (uint16_t i = 0; i < numOfFireflies; ++i) {
+        glm::vec3 position{};
+        do {
+            float randomX = disX(gen);
+            float randomZ = disZ(gen);
+            position = glm::vec3(randomX, 0.7f, randomZ);
+        } while (IsPositionTaken(position));
+
+        fireflyPositions.push_back(position);
+        takenPositions.push_back(position);
+    }
+
+    for (auto& position : fireflyPositions) {
+        entt::entity fireflyEntity = m_registry.create();
+        auto& fireflyTransform = m_registry.emplace<TransformComponent>(fireflyEntity);
+        fireflyTransform.position = position;
+        fireflyTransform.scale = glm::vec3(0.05f, 0.05f, 0.05f);
+
+        auto& fireflyModel = m_registry.emplace<ModelMeshComponent>(fireflyEntity);
+        fireflyModel.model.LoadModel("resources/models/firefly/scene.gltf");
+        m_registry.emplace<FireflyModelComponent>(fireflyEntity);
+    }
 }
 
 bool EntityManager::IsPositionTaken(glm::vec3 position) {

@@ -23,7 +23,7 @@
 #include <entt/entt.hpp>
 
 #include <iostream>
-
+#include <bitset>
 
 class Game {
 private:
@@ -49,8 +49,13 @@ private:
 	// is it the first time loading the mouse position
 	inline static bool isFirstMouse = true;
 
-	bool isOrbitMode = false;
-	bool isPostProcessingEnabled = false;
+	enum SettingsBits {
+		ORBIT_MODE = 0,
+		POST_PROCESSING = 1,
+		FLASHLIGHT = 2,
+		FLASHLIGHT_ON = 3
+	};
+	std::bitset<8> settings{0b0000'0000};
 
 	unsigned int cubeVAO;
 	unsigned int cubeVBO;

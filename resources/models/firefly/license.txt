@@ -1,0 +1,11 @@
+Model Information:
+* title:	Low-poly Firefly - Stylized
+* source:	https://sketchfab.com/3d-models/low-poly-firefly-stylized-fe25f86c9f0c41fcb180ce889f110ef0
+* author:	Teshe (https://sketchfab.com/Teshe)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Low-poly Firefly - Stylized" (https://sketchfab.com/3d-models/low-poly-firefly-stylized-fe25f86c9f0c41fcb180ce889f110ef0) by Teshe (https://sketchfab.com/Teshe) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

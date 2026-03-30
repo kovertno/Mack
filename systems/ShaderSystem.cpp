@@ -5,6 +5,10 @@
 #include "Game.hpp"
 #include "SceneShaders.hpp"
 
+#include "TransformComponent.hpp"
+#include "ModelMeshComponent.hpp"
+#include "FireflyModelComponent.hpp"
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -28,15 +32,45 @@ void ShaderSystem::SetSpotLightStaticUniforms(Shader* shader) {
     shader->SetVec3("spotLight.specular", 0.1f, 0.1f, 0.1f);
     shader->SetFloat("spotLight.cutOff", cos(glm::radians(11.0f)));
     shader->SetFloat("spotLight.outCutOff", cos(glm::radians(17.5f)));
-
-    shader->SetBool("useSpotLight", true);
 }
 
-void ShaderSystem::SetSpotLightDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera) {
+void ShaderSystem::SetSpotLightDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera, bool useSpotLight) {
     shader->Use();
 
     shader->SetVec3("spotLight.position", camera->Position);
     shader->SetVec3("spotLight.direction", camera->Front);
+
+    if (useSpotLight)
+        shader->SetBool("useSpotLight", true);
+    else
+        shader->SetBool("useSpotLight", false);
+}
+
+void ShaderSystem::SetPointLightStaticUniforms(Shader* shader) {
+    shader->Use();
+
+    for (uint16_t i = 0; i < 5; ++i) { // there are 5 hardcoded fireflies for now
+        shader->SetFloat("pointLight[" + std::to_string(i) + "].constant", 1.0f);
+        shader->SetFloat("pointLight[" + std::to_string(i) + "].linear", 0.35f);
+        shader->SetFloat("pointLight[" + std::to_string(i) + "].quadratic", 0.44f);
+        shader->SetVec3("pointLight[" + std::to_string(i) + "].ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+        shader->SetVec3("pointLight[" + std::to_string(i) + "].diffuse", glm::vec3(0.4f, 0.4f, 0.4f));
+        shader->SetVec3("pointLight[" + std::to_string(i) + "].specular", glm::vec3(0.4f, 0.4f, 0.4f));
+
+        shader->SetBool("usePointLight", true);
+    }
+}
+
+void ShaderSystem::SetPointLightDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera, entt::registry& registry) {
+    shader->Use();
+
+    uint16_t i = 0;
+    auto view = registry.view<TransformComponent, ModelMeshComponent, FireflyModelComponent>();
+    for (auto entity : view) {
+        auto transform = registry.get<TransformComponent>(entity);
+        shader->SetVec3("pointLight[" + std::to_string(i) + "].position", transform.position);
+        ++i;
+    }
 }
 
 void ShaderSystem::SetCubeShaderStaticUniforms(Shader* shader) {
@@ -222,6 +256,9 @@ void ShaderSystem::SetStaticUniforms(SceneShaders& sceneShaders, unsigned int& f
     ShaderSystem::SetSpotLightStaticUniforms(sceneShaders.cubeShader);
     ShaderSystem::SetSpotLightStaticUniforms(sceneShaders.grassShader);
     ShaderSystem::SetSpotLightStaticUniforms(sceneShaders.modelShader);
+    ShaderSystem::SetPointLightStaticUniforms(sceneShaders.cubeShader);
+    ShaderSystem::SetPointLightStaticUniforms(sceneShaders.grassShader);
+    ShaderSystem::SetPointLightStaticUniforms(sceneShaders.modelShader);
     ShaderSystem::SetCrosshairShaderStaticUniforms(sceneShaders.crosshairShader);
     ShaderSystem::SetCubeShaderStaticUniforms(sceneShaders.cubeShader);
     ShaderSystem::SetGrassShaderStaticUniforms(sceneShaders.grassShader);
@@ -232,10 +269,13 @@ void ShaderSystem::SetStaticUniforms(SceneShaders& sceneShaders, unsigned int& f
     ShaderSystem::SetSkyboxStaticUnifoms(sceneShaders.skyboxShader);
 }
 
-void ShaderSystem::SetDynamicUniforms(SceneShaders& sceneShaders, std::unique_ptr<Camera>& camera) {
-    ShaderSystem::SetSpotLightDynamicUniforms(sceneShaders.cubeShader, camera);
-    ShaderSystem::SetSpotLightDynamicUniforms(sceneShaders.grassShader, camera);
-    ShaderSystem::SetSpotLightDynamicUniforms(sceneShaders.modelShader, camera);
+void ShaderSystem::SetDynamicUniforms(SceneShaders& sceneShaders, std::unique_ptr<Camera>& camera, entt::registry& registry, bool useSpotLight) {
+    ShaderSystem::SetSpotLightDynamicUniforms(sceneShaders.cubeShader, camera, useSpotLight);
+    ShaderSystem::SetSpotLightDynamicUniforms(sceneShaders.grassShader, camera, useSpotLight);
+    ShaderSystem::SetSpotLightDynamicUniforms(sceneShaders.modelShader, camera, useSpotLight);
+    ShaderSystem::SetPointLightDynamicUniforms(sceneShaders.cubeShader, camera, registry);
+    ShaderSystem::SetPointLightDynamicUniforms(sceneShaders.grassShader, camera, registry);
+    ShaderSystem::SetPointLightDynamicUniforms(sceneShaders.modelShader, camera, registry);
     ShaderSystem::SetCubeShaderDynamicUniforms(sceneShaders.cubeShader, camera);
     ShaderSystem::SetGrassShaderDynamicUniforms(sceneShaders.grassShader, camera);
     ShaderSystem::SetModelShaderDynamicUniforms(sceneShaders.modelShader, camera);

@@ -26,6 +26,7 @@
 #include <entt/entt.hpp>
 
 #include <iostream>
+#include <bitset>
 
 void Game::Init() {
     Window _window{SCR_WIDTH, SCR_HEIGHT};
@@ -72,6 +73,8 @@ void Game::Init() {
     entityManager->CreateMushroomModel();
     // flashlight
     entityManager->CreateFlashlightModel(camera);
+    // fireflies
+    entityManager->CreateFireflies();
 
     framebuffer = std::make_unique<Framebuffer>();
     skyboxTexture = TextureUtils::LoadCubemap(skyboxFaces);
@@ -93,7 +96,7 @@ void Game::ProcessInput() {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    if (!isOrbitMode) {
+    if (!settings.test(ORBIT_MODE)) {
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
             camera->KeyboardMovement(FORWARD, deltaTime);
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -113,7 +116,7 @@ void Game::ProcessInput() {
 
     static bool qPressed = false;
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS && !qPressed) {
-        isOrbitMode = !isOrbitMode;
+        settings.flip(ORBIT_MODE);
         qPressed = true;
     }
 
@@ -122,12 +125,32 @@ void Game::ProcessInput() {
 
     static bool ePressed = false;
     if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS && !ePressed) {
-        isPostProcessingEnabled = !isPostProcessingEnabled;
+        settings.flip(POST_PROCESSING);
         ePressed = true;
     }
 
     if (glfwGetKey(window, GLFW_KEY_E) == GLFW_RELEASE)
         ePressed = false;
+
+    static bool fPressed = false;
+    if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS && !fPressed) {
+        settings.flip(FLASHLIGHT);
+        fPressed = true;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_F) == GLFW_RELEASE)
+        fPressed = false;
+
+    if (settings.test(FLASHLIGHT)) {
+        static bool mousePressed = false;
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && !mousePressed) {
+            settings.flip(FLASHLIGHT_ON);
+            mousePressed = true;
+        }
+
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
+            mousePressed = false;
+    }
 }
 
 void Game::Update() {
@@ -139,11 +162,11 @@ void Game::Update() {
 }
 
 void Game::Render() {
-    if (!isPostProcessingEnabled) {
+    if (!settings.test(POST_PROCESSING)) {
         // clear buffers
         glClearColor(0.0f, 0.5f, 0.5f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-        ShaderSystem::SetDynamicUniforms(sceneShaders, camera);
+        ShaderSystem::SetDynamicUniforms(sceneShaders, camera, registry, settings.test(FLASHLIGHT_ON));
 
 
         // enable depth testing
@@ -153,9 +176,16 @@ void Game::Render() {
         glStencilMask(0x00);
 
         RenderSystem::RenderScene(registry, sceneShaders, skyboxVAO, skyboxTexture);
-        glDisable(GL_STENCIL_TEST);
-        RenderSystem::RenderFlashlight(registry, modelShader.get(), camera);
-        glEnable(GL_STENCIL_TEST);
+
+        if (settings.test(FLASHLIGHT)) {
+            glDisable(GL_STENCIL_TEST);
+            RenderSystem::RenderFlashlight(registry, modelShader.get(), camera);
+            glEnable(GL_STENCIL_TEST);
+        }
+        else {
+            settings.reset(FLASHLIGHT_ON);
+        }
+
         // disable depth test for crosshair
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_STENCIL_TEST);
@@ -172,7 +202,7 @@ void Game::Render() {
         // clear buffers
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-        ShaderSystem::SetDynamicUniforms(sceneShaders, camera);
+        ShaderSystem::SetDynamicUniforms(sceneShaders, camera, registry, settings.test(FLASHLIGHT_ON));
 
         // enable depth testing
         glEnable(GL_DEPTH_TEST);
@@ -181,9 +211,15 @@ void Game::Render() {
         glStencilMask(0x00);
 
         RenderSystem::RenderScene(registry, sceneShaders, skyboxVAO, skyboxTexture);
-        glDisable(GL_STENCIL_TEST);
-        RenderSystem::RenderFlashlight(registry, modelShader.get(), camera);
-        glEnable(GL_STENCIL_TEST);
+
+        if (settings.test(FLASHLIGHT)) {
+            glDisable(GL_STENCIL_TEST);
+            RenderSystem::RenderFlashlight(registry, modelShader.get(), camera);
+            glEnable(GL_STENCIL_TEST);
+        }
+        else {
+            settings.reset(FLASHLIGHT_ON);
+        }
 
         // reset stencil opeitons to default for proper next iteration and stencil buffer clear
         glStencilFunc(GL_ALWAYS, 1, 0xFF);
