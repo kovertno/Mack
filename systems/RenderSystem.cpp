@@ -14,6 +14,7 @@
 #include "MushroomModelComponent.hpp"
 #include "OutlineComponent.hpp"
 #include "FlashlightModelComponent.hpp"
+#include "FireflyModelComponent.hpp"
 #include "Framebuffer.hpp"
 #include "SceneShaders.hpp"
 
@@ -154,6 +155,24 @@ void RenderSystem::RenderFlashlight(entt::registry& registry, Shader* shader, st
     shader->SetBool("useSpotLight", true);
 }
 
+void RenderSystem::RenderFireflies(entt::registry& registry, Shader* shader) {
+    shader->Use();
+
+    auto view = registry.view<TransformComponent, ModelMeshComponent, FireflyModelComponent>();
+    for (auto entity : view) {
+        auto& transform = view.get<TransformComponent>(entity);
+        auto& mesh = view.get<ModelMeshComponent>(entity);
+
+        shader->Use();
+        shader->SetBool("usePointLight", false);
+        shader->SetMat4("model", transform.GetModelMatrix());
+        shader->SetFloat("material.shininess", 32.0f);
+        mesh.model.Draw(shader);
+
+        shader->SetBool("useSpotLight", true);
+    }
+}
+
 void RenderSystem::RenderScene(entt::registry& registry, SceneShaders& sceneShaders, unsigned int skyboxVAO, unsigned int skyboxTexture) {
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
@@ -166,6 +185,7 @@ void RenderSystem::RenderScene(entt::registry& registry, SceneShaders& sceneShad
     RenderSystem::RenderGrass(registry, sceneShaders.grassShader);
     RenderSystem::RenderBoxes(registry, sceneShaders.cubeShader, sceneShaders.outlineShader);
     RenderSystem::RenderFloor(registry, sceneShaders.cubeShader);
+    RenderSystem::RenderFireflies(registry, sceneShaders.modelShader);
     glDepthFunc(GL_LEQUAL);
     RenderSystem::RenderSkybox(sceneShaders.skyboxShader, skyboxVAO, skyboxTexture);
     glDepthFunc(GL_LESS);

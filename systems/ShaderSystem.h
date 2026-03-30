@@ -21,7 +21,9 @@ public:
 
 	static void SetDirectionalLightUniforms(Shader* shader);
 	static void SetSpotLightStaticUniforms(Shader* shader);
-	static void SetSpotLightDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera);
+	static void SetSpotLightDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera, bool useSpotLight);
+	static void SetPointLightStaticUniforms(Shader* shader);
+	static void SetPointLightDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera, entt::registry& registry);
 	static void SetCubeShaderStaticUniforms(Shader* shader);
 	static void SetCubeShaderDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera);
 	static void SetCrosshairShaderStaticUniforms(Shader* shader);
@@ -36,7 +38,7 @@ public:
 	static void SetSkyboxStaticUnifoms(Shader* shader);
 	static void SetSkyboxDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera);
 	static void SetStaticUniforms(SceneShaders& sceneShaders, unsigned int& framebufferVAO, unsigned int& framebufferVBO, unsigned int& skyboxVAO, unsigned int& skyboxVBO);
-	static void SetDynamicUniforms(SceneShaders& sceneShaders, std::unique_ptr<Camera>& camera);
+	static void SetDynamicUniforms(SceneShaders& sceneShaders, std::unique_ptr<Camera>& camera, entt::registry& registry, bool useSpotLight);
 };
 
 #endif
