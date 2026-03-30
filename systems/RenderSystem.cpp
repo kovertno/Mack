@@ -60,6 +60,10 @@ void RenderSystem::RenderBoxes(entt::registry& registry, Shader* cubeShader, Sha
         glBindVertexArray(mesh.VAO);
         glDrawArrays(GL_TRIANGLES, 0, mesh.numOfVertices);
         glBindVertexArray(0);
+
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glStencilMask(0xFF);
+        glClear(GL_STENCIL_BUFFER_BIT);
     }
 }
 
@@ -182,10 +186,12 @@ void RenderSystem::RenderScene(entt::registry& registry, SceneShaders& sceneShad
     RenderSystem::RenderSceneModel<BushModelComponent>(registry, sceneShaders.modelShader, sceneShaders.outlineShader);
     RenderSystem::RenderSceneModel<MushroomModelComponent>(registry, sceneShaders.modelShader, sceneShaders.outlineShader);
     glDisable(GL_CULL_FACE);
-    RenderSystem::RenderGrass(registry, sceneShaders.grassShader);
     RenderSystem::RenderBoxes(registry, sceneShaders.cubeShader, sceneShaders.outlineShader);
     RenderSystem::RenderFloor(registry, sceneShaders.cubeShader);
+    RenderSystem::RenderGrass(registry, sceneShaders.grassShader);
+    glEnable(GL_CULL_FACE);
     RenderSystem::RenderFireflies(registry, sceneShaders.modelShader);
+    glDisable(GL_CULL_FACE);
     glDepthFunc(GL_LEQUAL);
     RenderSystem::RenderSkybox(sceneShaders.skyboxShader, skyboxVAO, skyboxTexture);
     glDepthFunc(GL_LESS);

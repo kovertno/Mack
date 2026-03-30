@@ -180,9 +180,7 @@ void Game::Render() {
         RenderSystem::RenderScene(registry, sceneShaders, skyboxVAO, skyboxTexture);
 
         if (settings.test(FLASHLIGHT)) {
-            glDisable(GL_STENCIL_TEST);
             RenderSystem::RenderFlashlight(registry, modelShader.get(), camera);
-            glEnable(GL_STENCIL_TEST);
         }
         else {
             settings.reset(FLASHLIGHT_ON);
@@ -215,9 +213,7 @@ void Game::Render() {
         RenderSystem::RenderScene(registry, sceneShaders, skyboxVAO, skyboxTexture);
 
         if (settings.test(FLASHLIGHT)) {
-            glDisable(GL_STENCIL_TEST);
             RenderSystem::RenderFlashlight(registry, modelShader.get(), camera);
-            glEnable(GL_STENCIL_TEST);
         }
         else {
             settings.reset(FLASHLIGHT_ON);

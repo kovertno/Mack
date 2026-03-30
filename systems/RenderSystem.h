@@ -66,6 +66,10 @@ public:
 			outlineShader->Use();
 			outlineShader->SetMat4("model", transform.GetModelMatrix());
 			mesh.model.Draw(outlineShader);
+
+			glStencilFunc(GL_ALWAYS, 1, 0xFF);
+			glStencilMask(0xFF);
+			glClear(GL_STENCIL_BUFFER_BIT);
 		}
 	}
 };
