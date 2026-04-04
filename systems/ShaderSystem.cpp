@@ -53,9 +53,9 @@ void ShaderSystem::SetPointLightStaticUniforms(Shader* shader) {
         shader->SetFloat("pointLight[" + std::to_string(i) + "].constant", 1.0f);
         shader->SetFloat("pointLight[" + std::to_string(i) + "].linear", 0.35f);
         shader->SetFloat("pointLight[" + std::to_string(i) + "].quadratic", 0.44f);
-        shader->SetVec3("pointLight[" + std::to_string(i) + "].ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-        shader->SetVec3("pointLight[" + std::to_string(i) + "].diffuse", glm::vec3(0.4f, 0.4f, 0.4f));
-        shader->SetVec3("pointLight[" + std::to_string(i) + "].specular", glm::vec3(0.4f, 0.4f, 0.4f));
+        shader->SetVec3("pointLight[" + std::to_string(i) + "].ambient", glm::vec3(0.3f, 0.15f, 0.15f));
+        shader->SetVec3("pointLight[" + std::to_string(i) + "].diffuse", glm::vec3(0.5f, 0.35f, 0.35f));
+        shader->SetVec3("pointLight[" + std::to_string(i) + "].specular", glm::vec3(0.5f, 0.35f, 0.35f));
 
         shader->SetBool("usePointLight", true);
     }

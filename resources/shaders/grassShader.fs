@@ -1,5 +1,10 @@
 #version 330 core
 
+in VS_OUT {
+	vec3 Normal;
+	vec3 FragPos;
+} fs_in;
+
 out vec4 FragColor;
 
 struct DirLight {
@@ -42,16 +47,13 @@ uniform vec3 viewPos;
 uniform bool useSpotLight;
 uniform bool usePointLight;
 
-in vec3 Normal;
-in vec3 FragPos;
-
 vec3 CalcDirLight(vec3 color, vec3 viewDir, vec3 normal);
 vec3 CalcSpotLight(vec3 color, vec3 viewDir, vec3 normal);
 vec3 CalcPointLight(PointLight pointLight, vec3 color, vec3 viewDir, vec3 normal);
 
 void main() {
-	vec3 viewDir = normalize(viewPos - FragPos);
-	vec3 normal = normalize(Normal);
+	vec3 viewDir = normalize(viewPos - fs_in.FragPos);
+	vec3 normal = normalize(fs_in.Normal);
 	vec3 color = vec3(0.0f, 0.5f, 0.1f);
 
 	vec3 result = CalcDirLight(color, viewDir, normal);
@@ -83,7 +85,7 @@ vec3 CalcDirLight(vec3 color, vec3 viewDir, vec3 normal) {
 }
 
 vec3 CalcSpotLight(vec3 color, vec3 viewDir, vec3 normal) {
-	vec3 lightDir = normalize(spotLight.position - FragPos);
+	vec3 lightDir = normalize(spotLight.position - fs_in.FragPos);
 
 	float diff = max(abs(dot(lightDir, normal)), 0.0);
 
@@ -110,14 +112,14 @@ vec3 CalcSpotLight(vec3 color, vec3 viewDir, vec3 normal) {
 }
 
 vec3 CalcPointLight(PointLight pointLight, vec3 color, vec3 normal, vec3 viewDir) {
-	vec3 lightDir = normalize(pointLight.position - FragPos);
+	vec3 lightDir = normalize(pointLight.position - fs_in.FragPos);
 
 	float diff = max(dot(lightDir, normal), 0.0);
 
 	vec3 reflectDir = reflect(-lightDir, normal);
 	float spec = pow(max(dot(reflectDir, viewDir), 0.0), 16.0);
 
-	float distance = length(pointLight.position - FragPos);
+	float distance = length(pointLight.position - fs_in.FragPos);
 	float attenuation = 1.0 / (pointLight.constant + (pointLight.linear * distance) + (pointLight.quadratic * (distance * distance)));
 
 	vec3 ambient = pointLight.ambient * color;
