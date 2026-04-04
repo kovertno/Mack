@@ -7,13 +7,15 @@ uniform mat4 projection;
 uniform mat4 view;
 uniform mat4 model;
 
-out vec3 Normal;
-out vec3 FragPos;
+out VS_OUT {
+	vec3 Normal;
+	vec3 FragPos;
+} vs_out;
 
 void main() {
-	Normal = mat3(transpose(inverse(model))) * aNorm;
+	vs_out.Normal = mat3(transpose(inverse(model))) * aNorm;
 
-	FragPos = vec3(model * vec4(aPos, 1.0));
+	vs_out.FragPos = vec3(model * vec4(aPos, 1.0));
 
 	gl_Position = projection * view * model * vec4(aPos, 1.0);
 }
