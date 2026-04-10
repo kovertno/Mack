@@ -1,4 +1,8 @@
-#version 330 core
+#version 420 core
+
+layout (std140, binding = 1) uniform Data {
+	vec3 viewPos;
+};
 
 in VS_OUT {
 	vec3 Normal;
@@ -43,7 +47,6 @@ struct PointLight {
 #define NUM_POINT_LIGHTS 5
 uniform PointLight pointLight[NUM_POINT_LIGHTS];
 
-uniform vec3 viewPos;
 uniform bool useSpotLight;
 uniform bool usePointLight;
 

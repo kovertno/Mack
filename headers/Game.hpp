@@ -72,6 +72,9 @@ private:
 
 	unsigned int skyboxVAO;
 	unsigned int skyboxVBO;
+
+	unsigned int matricesUBO;
+	unsigned int dataUBO;
 	std::vector<std::string> skyboxFaces
 	{
 		"resources/textures/skybox/right.png",
@@ -105,6 +108,9 @@ public:
 
 		glDeleteVertexArrays(1, &skyboxVAO);
 		glDeleteBuffers(1, &skyboxVBO);
+
+		glDeleteBuffers(1, &matricesUBO);
+		glDeleteBuffers(1, &dataUBO);
 
 		glDeleteTextures(1, &skyboxTexture);
 
