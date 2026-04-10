@@ -15,6 +15,46 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+void ShaderSystem::CreateMatricesUBO(unsigned int& matricesUBO) {
+    glGenBuffers(1, &matricesUBO);
+
+    glBindBuffer(GL_UNIFORM_BUFFER, matricesUBO);
+    glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
+
+    glBindBufferRange(GL_UNIFORM_BUFFER, 0, matricesUBO, 0, 2 * sizeof(glm::mat4) /* 2 * 4 * 16 = 128 */);
+
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void ShaderSystem::UpdateMatricesUBO(unsigned int& matricesUBO, std::unique_ptr<Camera>& camera) {
+    static glm::mat4 projection = glm::perspective(glm::radians(45.0f), (static_cast<float>(Game::SCR_WIDTH) / static_cast<float>(Game::SCR_HEIGHT)), 0.1f, 100.0f);
+    glm::mat4 view = camera->GetViewMatrix();
+
+    glBindBuffer(GL_UNIFORM_BUFFER, matricesUBO);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projection));
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void ShaderSystem::CreateDataUBO(unsigned int& dataUBO) {
+    glGenBuffers(1, &dataUBO);
+
+    glBindBuffer(GL_UNIFORM_BUFFER, dataUBO);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::vec3), NULL, GL_STATIC_DRAW);
+
+    glBindBufferRange(GL_UNIFORM_BUFFER, 1, dataUBO, 0, sizeof(glm::vec3) /* 16 */);
+
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void ShaderSystem::UpdateDataUBO(unsigned int& dataUBO, std::unique_ptr<Camera>& camera) {
+    glm::vec3 viewPos = camera->Position;
+
+    glBindBuffer(GL_UNIFORM_BUFFER, dataUBO);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec3), glm::value_ptr(viewPos));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
 void ShaderSystem::SetDirectionalLightUniforms(Shader* shader) {
     shader->Use();
 
@@ -73,22 +113,6 @@ void ShaderSystem::SetPointLightDynamicUniforms(Shader* shader, std::unique_ptr<
     }
 }
 
-void ShaderSystem::SetCubeShaderStaticUniforms(Shader* shader) {
-    shader->Use();
-
-    glm::mat4 projection = glm::mat4(1.0f);
-    projection = glm::perspective(glm::radians(45.0f), (static_cast<float>(Game::SCR_WIDTH) / static_cast<float>(Game::SCR_HEIGHT)), 0.1f, 100.0f);
-    shader->SetMat4("projection", projection);
-}
-
-void ShaderSystem::SetCubeShaderDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera) {
-    shader->Use();
-
-    shader->SetMat4("view", camera->GetViewMatrix());
-
-    shader->SetVec3("viewPos", camera->Position);
-}
-
 void ShaderSystem::SetCrosshairShaderStaticUniforms(Shader* shader) {
     shader->Use();
 
@@ -101,51 +125,11 @@ void ShaderSystem::SetCrosshairShaderStaticUniforms(Shader* shader) {
     shader->SetMat4("model", model);
 }
 
-void ShaderSystem::SetGrassShaderStaticUniforms(Shader* shader) {
-    shader->Use();
-
-    glm::mat4 projection = glm::mat4(1.0f);
-    projection = glm::perspective(glm::radians(45.0f), static_cast<float>(Game::SCR_WIDTH) / static_cast<float>(Game::SCR_HEIGHT), 0.1f, 100.0f);
-    shader->SetMat4("projection", projection);
-}
-
-void ShaderSystem::SetGrassShaderDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera) {
-    shader->Use();
-
-    shader->SetMat4("view", camera->GetViewMatrix());
-    shader->SetVec3("viewPos", camera->Position);
-}
-
-
-void ShaderSystem::SetModelShaderStaticUniforms(Shader* shader) {
-    shader->Use();
-
-    glm::mat4 projection = glm::mat4(1.0f);
-    projection = glm::perspective(glm::radians(45.0f), static_cast<float>(Game::SCR_WIDTH) / static_cast<float>(Game::SCR_HEIGHT), 0.1f, 100.0f);
-    shader->SetMat4("projection", projection);
-}
-
-void ShaderSystem::SetModelShaderDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera) {
-    shader->Use();
-
-    shader->SetMat4("view", camera->GetViewMatrix());
-    shader->SetVec3("viewPos", camera->Position);
-}
-
 void ShaderSystem::SetOutlineShaderStaticUniforms(Shader* shader) {
-
-    glm::mat4 projection = glm::mat4(1.0f);
-    projection = glm::perspective(glm::radians(45.0f), static_cast<float>(Game::SCR_WIDTH) / static_cast<float>(Game::SCR_HEIGHT), 0.1f, 100.0f);
-
     shader->Use();
-    shader->SetMat4("projection", projection);
     shader->SetFloat("scale", 0.015f);
 }
 
-void ShaderSystem::SetOutlineShaderDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera) {
-    shader->Use();
-    shader->SetMat4("view", camera->GetViewMatrix());
-}
 
 void ShaderSystem::SetPostProcessing(Shader* shader, unsigned int& VAO, unsigned int& VBO) {
     float quadVertices[] = { // fills the entire screen in NDCs.
@@ -236,19 +220,6 @@ void ShaderSystem::SetSkyboxVAO(unsigned int& VAO, unsigned int& VBO) {
     glBindVertexArray(0);
 }
 
-void ShaderSystem::SetSkyboxStaticUnifoms(Shader* shader) {
-    shader->Use();
-    glm::mat4 projection = glm::mat4(1.0f);
-    projection = glm::perspective(glm::radians(45.0f), static_cast<float>(Game::SCR_WIDTH) / static_cast<float>(Game::SCR_HEIGHT), 0.1f, 100.0f);
-    shader->SetMat4("projection", projection);
-}
-
-void ShaderSystem::SetSkyboxDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera) {
-    shader->Use();
-    glm::mat4 view = glm::mat4(glm::mat3(camera->GetViewMatrix()));
-    shader->SetMat4("view", view);
-}
-
 void ShaderSystem::SetStaticUniforms(SceneShaders& sceneShaders, unsigned int& framebufferVAO, unsigned int& framebufferVBO, unsigned int& skyboxVAO, unsigned int& skyboxVBO) {
     ShaderSystem::SetDirectionalLightUniforms(sceneShaders.cubeShader);
     ShaderSystem::SetDirectionalLightUniforms(sceneShaders.modelShader);
@@ -260,25 +231,18 @@ void ShaderSystem::SetStaticUniforms(SceneShaders& sceneShaders, unsigned int& f
     ShaderSystem::SetPointLightStaticUniforms(sceneShaders.grassShader);
     ShaderSystem::SetPointLightStaticUniforms(sceneShaders.modelShader);
     ShaderSystem::SetCrosshairShaderStaticUniforms(sceneShaders.crosshairShader);
-    ShaderSystem::SetCubeShaderStaticUniforms(sceneShaders.cubeShader);
-    ShaderSystem::SetGrassShaderStaticUniforms(sceneShaders.grassShader);
-    ShaderSystem::SetModelShaderStaticUniforms(sceneShaders.modelShader);
     ShaderSystem::SetOutlineShaderStaticUniforms(sceneShaders.outlineShader);
     ShaderSystem::SetPostProcessing(sceneShaders.postProcessingShader, framebufferVAO, framebufferVBO);
     ShaderSystem::SetSkyboxVAO(skyboxVAO, skyboxVBO);
-    ShaderSystem::SetSkyboxStaticUnifoms(sceneShaders.skyboxShader);
 }
 
-void ShaderSystem::SetDynamicUniforms(SceneShaders& sceneShaders, std::unique_ptr<Camera>& camera, entt::registry& registry, bool useSpotLight) {
+void ShaderSystem::SetDynamicUniforms(SceneShaders& sceneShaders, std::unique_ptr<Camera>& camera, entt::registry& registry, bool useSpotLight, unsigned int& matricesUBO, unsigned int& dataUBO) {
+    ShaderSystem::UpdateMatricesUBO(matricesUBO, camera);
+    ShaderSystem::UpdateDataUBO(dataUBO, camera);
     ShaderSystem::SetSpotLightDynamicUniforms(sceneShaders.cubeShader, camera, useSpotLight);
     ShaderSystem::SetSpotLightDynamicUniforms(sceneShaders.grassShader, camera, useSpotLight);
     ShaderSystem::SetSpotLightDynamicUniforms(sceneShaders.modelShader, camera, useSpotLight);
     ShaderSystem::SetPointLightDynamicUniforms(sceneShaders.cubeShader, camera, registry);
     ShaderSystem::SetPointLightDynamicUniforms(sceneShaders.grassShader, camera, registry);
     ShaderSystem::SetPointLightDynamicUniforms(sceneShaders.modelShader, camera, registry);
-    ShaderSystem::SetCubeShaderDynamicUniforms(sceneShaders.cubeShader, camera);
-    ShaderSystem::SetGrassShaderDynamicUniforms(sceneShaders.grassShader, camera);
-    ShaderSystem::SetModelShaderDynamicUniforms(sceneShaders.modelShader, camera);
-    ShaderSystem::SetOutlineShaderDynamicUniforms(sceneShaders.outlineShader, camera);
-    ShaderSystem::SetSkyboxDynamicUniforms(sceneShaders.skyboxShader, camera);
 }

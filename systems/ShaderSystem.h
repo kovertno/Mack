@@ -19,26 +19,21 @@ public:
 	ShaderSystem() = default;
 	~ShaderSystem() = default;
 
+	static void CreateMatricesUBO(unsigned int& matricesUBO);
+	static void UpdateMatricesUBO(unsigned int& matricesUBO, std::unique_ptr<Camera>& camera);
+	static void CreateDataUBO(unsigned int& dataUBO);
+	static void UpdateDataUBO(unsigned int& dataUBO, std::unique_ptr<Camera>& camera);
 	static void SetDirectionalLightUniforms(Shader* shader);
 	static void SetSpotLightStaticUniforms(Shader* shader);
 	static void SetSpotLightDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera, bool useSpotLight);
 	static void SetPointLightStaticUniforms(Shader* shader);
 	static void SetPointLightDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera, entt::registry& registry);
-	static void SetCubeShaderStaticUniforms(Shader* shader);
-	static void SetCubeShaderDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera);
 	static void SetCrosshairShaderStaticUniforms(Shader* shader);
-	static void SetGrassShaderStaticUniforms(Shader* shader);
-	static void SetGrassShaderDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera);
-	static void SetModelShaderStaticUniforms(Shader* shader);
-	static void SetModelShaderDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera);
 	static void SetOutlineShaderStaticUniforms(Shader* shader);
-	static void SetOutlineShaderDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera);
 	static void SetPostProcessing(Shader* shader, unsigned int& VAO, unsigned int& VBO);
 	static void SetSkyboxVAO(unsigned int& VAO, unsigned int& VBO);
-	static void SetSkyboxStaticUnifoms(Shader* shader);
-	static void SetSkyboxDynamicUniforms(Shader* shader, std::unique_ptr<Camera>& camera);
 	static void SetStaticUniforms(SceneShaders& sceneShaders, unsigned int& framebufferVAO, unsigned int& framebufferVBO, unsigned int& skyboxVAO, unsigned int& skyboxVBO);
-	static void SetDynamicUniforms(SceneShaders& sceneShaders, std::unique_ptr<Camera>& camera, entt::registry& registry, bool useSpotLight);
+	static void SetDynamicUniforms(SceneShaders& sceneShaders, std::unique_ptr<Camera>& camera, entt::registry& registry, bool useSpotLight, unsigned int& matricesUBO, unsigned int& dataUBO);
 };
 
 #endif

@@ -52,6 +52,8 @@ void Game::Init() {
     CrosshairMeshComponent::SetCrosshairVAO(crosshairVAO, crosshairVBO);
     BoxMeshComponent::SetBoxVAO(cubeVAO, cubeVBO);
     GrassMeshComponent::SetGrassVAO(grassVAO, grassVBO);
+    ShaderSystem::CreateMatricesUBO(matricesUBO);
+    ShaderSystem::CreateDataUBO(dataUBO);
 
     // crosshair
     entityManager->CreateCrosshair(crosshairVAO);
@@ -168,7 +170,7 @@ void Game::Render() {
         // clear buffers
         glClearColor(0.0f, 0.5f, 0.5f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-        ShaderSystem::SetDynamicUniforms(sceneShaders, camera, registry, settings.test(FLASHLIGHT_ON));
+        ShaderSystem::SetDynamicUniforms(sceneShaders, camera, registry, settings.test(FLASHLIGHT_ON), matricesUBO, dataUBO);
 
 
         // enable depth testing
@@ -202,7 +204,7 @@ void Game::Render() {
         // clear buffers
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-        ShaderSystem::SetDynamicUniforms(sceneShaders, camera, registry, settings.test(FLASHLIGHT_ON));
+        ShaderSystem::SetDynamicUniforms(sceneShaders, camera, registry, settings.test(FLASHLIGHT_ON), matricesUBO, dataUBO);
 
         // enable depth testing
         glEnable(GL_DEPTH_TEST);
